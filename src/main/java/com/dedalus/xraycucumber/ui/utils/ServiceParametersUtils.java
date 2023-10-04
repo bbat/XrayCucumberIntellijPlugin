@@ -1,6 +1,4 @@
-package com.dedalus.xraycucumber.ui;
-
-import static com.intellij.remoteServer.util.CloudConfigurationUtil.createCredentialAttributes;
+package com.dedalus.xraycucumber.ui.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +7,7 @@ import java.net.URL;
 import java.util.Optional;
 
 import com.dedalus.xraycucumber.model.ServiceParameters;
+import com.dedalus.xraycucumber.ui.dialog.JiraCredentialsDialog;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.credentialStore.CredentialAttributes;
@@ -19,7 +18,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
 public class ServiceParametersUtils {
-    final static String XRAY_CUCUMBER_JSON = "xray-cucumber.json";
+
+    public static final String XRAY_CUCUMBER_JSON = "xray-cucumber.json";
 
     public static ServiceParameters prepareServiceParameters(final Project project, final VirtualFile serviceParametersFile) throws IOException {
         ServiceParameters serviceParameters = load(serviceParametersFile);
@@ -55,7 +55,7 @@ public class ServiceParametersUtils {
         return new CredentialAttributes(CredentialAttributesKt.generateServiceName("Jira", jiraUrl.toExternalForm()));
     }
 
-    private static ServiceParameters requestJiraCredentialsFormUser(Project project, ServiceParameters serviceParameters) throws MalformedURLException {
+    private static ServiceParameters requestJiraCredentialsFormUser(Project project, ServiceParameters serviceParameters) {
         JiraCredentialsDialog jiraCredentialsDialog = new JiraCredentialsDialog(project, serviceParameters);
         if (jiraCredentialsDialog.showAndGet()) {
             serviceParameters = jiraCredentialsDialog.getUpdatedServiceParameters();

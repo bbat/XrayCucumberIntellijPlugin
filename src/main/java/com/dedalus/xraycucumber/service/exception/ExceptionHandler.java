@@ -12,5 +12,4 @@ public class ExceptionHandler {
             throw new RuntimeException(message, e);
         }
     }
-
 }

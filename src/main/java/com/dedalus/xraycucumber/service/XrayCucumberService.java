@@ -36,8 +36,9 @@ public class XrayCucumberService {
         }
 
         try {
-            HttpEntity httpEntity = executeUpload(featureFile);
+            HttpEntity httpEntity = uploadFeature(featureFile);
             progressReporter.reportSuccess("Uploaded successfully " + featureFile);
+
             HttpEntityProcessor httpEntityProcessor = new HttpEntityProcessor();
             result = httpEntityProcessor.processResponse(httpEntity, httpClient, serviceParameters);
 
@@ -55,10 +56,12 @@ public class XrayCucumberService {
         return result;
     }
 
-    private HttpEntity executeUpload(Path featureFile)
+    private HttpEntity uploadFeature(Path featureFile)
             throws AuthenticationException, URISyntaxException, IOException, org.apache.http.auth.AuthenticationException {
+
         FeatureUploadRequestBuilder featureUploadRequestBuilder = new FeatureUploadRequestBuilder(serviceParameters);
         HttpUriRequest request = featureUploadRequestBuilder.build(featureFile, httpClient);
+
         HttpRequestHandler httpRequestHandler = new HttpRequestHandler(httpClient, serviceParameters);
         return httpRequestHandler.executeRequest(request);
     }

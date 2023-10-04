@@ -1,9 +1,10 @@
-package com.dedalus.xraycucumber.ui;
+package com.dedalus.xraycucumber.ui.dialog;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
 
 import com.dedalus.xraycucumber.model.ServiceParameters;
+import com.dedalus.xraycucumber.ui.utils.ServiceParametersUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 

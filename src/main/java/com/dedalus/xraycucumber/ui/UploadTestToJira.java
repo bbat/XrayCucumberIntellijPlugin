@@ -18,6 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 import com.dedalus.xraycucumber.model.ServiceParameters;
 import com.dedalus.xraycucumber.service.XrayCucumberService;
+import com.dedalus.xraycucumber.ui.utils.NotificationUtils;
+import com.dedalus.xraycucumber.ui.utils.ServiceParametersUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -179,7 +181,8 @@ public class UploadTestToJira extends AnAction {
                 ProgressIndicatorAdapter progressReporter = new ProgressIndicatorAdapter(progressIndicator, project);
 
                 JsonArray issues = xrayCucumberService.uploadXrayCucumberTest(Paths.get(featureFile.getPath()), progressReporter);
-                progressReporter.showIssueDetailsInPopup(issues, project);
+                IssueDetailsDisplayer issueDetailsDisplayer = new IssueDetailsDisplayer(project);
+                issueDetailsDisplayer.showInPopup(issues);
 
                 progressReporter.reportProgress("Update Feature file with Xray test case Id", 100);
                 try {
