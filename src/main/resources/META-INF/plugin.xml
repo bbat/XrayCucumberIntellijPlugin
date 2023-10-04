@@ -23,8 +23,7 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="Custom Notification Group"
-                           displayType="BALLOON"
-                           key="notification.group.name"/>
+                           displayType="BALLOON"/>
     </extensions>
 
     <actions>
@@ -32,7 +31,7 @@
             <add-to-group group-id="EditorPopupMenu" anchor="last" />
             <action id="XrayCucumber.UploadTestToJira"
                     class="com.dedalus.xraycucumber.ui.SyncXrayCucumber"
-                    text="Upload this feature file to Xray"
+                    text="Upload This Feature File to Xray"
                     description="Upload this feature file to Xray action">
             </action>
         </group>
