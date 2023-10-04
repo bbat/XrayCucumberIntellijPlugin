@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 
 import com.dedalus.xraycucumber.model.ServiceParameters;
-import com.dedalus.xraycucumber.ui.utils.ServiceParametersUtils;
+import com.dedalus.xraycucumber.ui.utils.CredentialManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 
@@ -23,7 +23,9 @@ public class JiraCredentialsDialog extends DialogWrapper {
         setTitle("Credential for " + serviceParameters.getUrl().toExternalForm());
         usernameTextField.setText(serviceParameters.getUsername());
         passwordPasswordField.setText(serviceParameters.getPassword());
-        storeCredentialsCheckBox.setSelected(ServiceParametersUtils.storeByDefault());
+
+        CredentialManager credentialManager = new CredentialManager();
+        storeCredentialsCheckBox.setSelected(credentialManager.storeByDefault());
     }
 
     @Nullable

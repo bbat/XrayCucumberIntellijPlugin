@@ -31,7 +31,7 @@
         <group id="XrayCucumberActions" text="XrayCucumber" description="Actions for XrayCucumber plugin">
             <add-to-group group-id="EditorPopupMenu" anchor="last" />
             <action id="XrayCucumber.UploadTestToJira"
-                    class="com.dedalus.xraycucumber.ui.UploadTestToJira"
+                    class="com.dedalus.xraycucumber.ui.SyncXrayCucumber"
                     text="Upload this feature file to Xray"
                     description="Upload this feature file to Xray action">
             </action>
