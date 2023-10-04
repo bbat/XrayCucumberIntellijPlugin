@@ -14,12 +14,17 @@ public class JiraIdMapper {
         for (JsonElement issueElement : issues) {
             JsonObject issueObject = issueElement.getAsJsonObject();
 
-            String scenarioName = issueObject.get("summary").getAsString();
-            String jiraId = issueObject.get("key").getAsString();
+            JsonElement summaryElement = issueObject.get("summary");
+            JsonElement keyElement = issueObject.get("key");
 
-            scenarioToJiraIdMap.put(scenarioName, jiraId);
+            if (summaryElement != null && !summaryElement.isJsonNull()
+                && keyElement != null && !keyElement.isJsonNull()) {
+
+                String scenarioName = summaryElement.getAsString();
+                String jiraId = keyElement.getAsString();
+                scenarioToJiraIdMap.put(scenarioName, jiraId);
+            }
         }
-
         return scenarioToJiraIdMap;
     }
 

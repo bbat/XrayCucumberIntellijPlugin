@@ -12,6 +12,10 @@ repositories {
 
 dependencies {
     implementation group: 'io.cucumber', name: 'gherkin', version: '27.0.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2' // Vérifiez si c'est la dernière version
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2' // Vérifiez si c'est la dernière version
+    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.5.0'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.5.0'
 }
 
 // Configure Gradle IntelliJ Plugin
@@ -21,6 +25,10 @@ intellij {
     type.set("IC") // Target IDE Platform
 
     plugins = []
+}
+
+test {
+    useJUnitPlatform()
 }
 
 tasks {

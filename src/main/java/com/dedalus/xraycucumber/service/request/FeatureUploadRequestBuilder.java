@@ -17,7 +17,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import com.dedalus.xraycucumber.model.ServiceParameters;
-import com.dedalus.xraycucumber.service.http.HttpRequestHandler;
 
 public class FeatureUploadRequestBuilder {
     private static final String REST_ENDPOINT_IMPORT_FEATURE = "/rest/raven/1.0/import/feature";
@@ -35,8 +34,7 @@ public class FeatureUploadRequestBuilder {
         URIBuilder uriBuilder = new URIBuilder(serviceParameters.getUrl() + REST_ENDPOINT_IMPORT_FEATURE)
                 .addParameter("projectKey", projectKey);
         HttpPost request = new HttpPost(uriBuilder.build());
-        HttpRequestHandler httpRequestHandler = new HttpRequestHandler(httpClient, serviceParameters);
-        httpRequestHandler.addAuthentication(request);
+
         HttpEntity entity = MultipartEntityBuilder.create()
                 .addBinaryBody("file", Files.newInputStream(featureFile), ContentType.APPLICATION_JSON, featureFile.getFileName().toString())
                 .build();

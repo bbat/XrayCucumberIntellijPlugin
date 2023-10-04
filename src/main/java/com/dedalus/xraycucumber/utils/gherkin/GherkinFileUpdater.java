@@ -32,7 +32,7 @@ public class GherkinFileUpdater {
         StringBuilder updatedFeatureContent = new StringBuilder();
 
         for (String line : featureLines) {
-            if (line.trim().toLowerCase().startsWith("scenario:")) {
+            if (line.trim().toLowerCase().startsWith("scenario:") || line.trim().toLowerCase().startsWith("scenario outline:")) {
                 String scenarioName = extractScenarioName(line);
 
                 String jiraId = jiraIdMap.get(scenarioName);
@@ -46,7 +46,13 @@ public class GherkinFileUpdater {
     }
 
     private String extractScenarioName(String line) {
-        return line.trim().substring(9).trim();
+        if(line.toLowerCase().contains("outline:")) {
+            return line.trim().substring(17).trim();
+        } else if(line.toLowerCase().contains("scenario:")) {
+            return line.trim().substring(9).trim();
+        } else {
+            throw new IllegalStateException("Scenario line should start with Scenario: or Scenario Outline but found :" + line);
+        }
     }
 
     private boolean shouldAddJiraId(Map<String, List<String>> scenariosAndTags, String scenarioName, String jiraId) {

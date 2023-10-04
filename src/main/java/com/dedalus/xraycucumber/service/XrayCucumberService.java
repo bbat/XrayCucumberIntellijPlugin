@@ -13,7 +13,8 @@ import org.apache.http.client.methods.HttpUriRequest;
 import com.dedalus.xraycucumber.model.ServiceParameters;
 import com.dedalus.xraycucumber.service.exception.ExceptionHandler;
 import com.dedalus.xraycucumber.service.http.HttpEntityProcessor;
-import com.dedalus.xraycucumber.service.http.HttpRequestHandler;
+import com.dedalus.xraycucumber.service.http.HttpRequestAuthenticator;
+import com.dedalus.xraycucumber.service.http.HttpService;
 import com.dedalus.xraycucumber.service.request.FeatureUploadRequestBuilder;
 import com.google.gson.JsonArray;
 
@@ -39,8 +40,9 @@ public class XrayCucumberService {
             HttpEntity httpEntity = uploadFeature(featureFile);
             progressReporter.reportSuccess("Uploaded successfully " + featureFile);
 
-            HttpEntityProcessor httpEntityProcessor = new HttpEntityProcessor();
-            result = httpEntityProcessor.processResponse(httpEntity, httpClient, serviceParameters);
+            HttpService httpService = new HttpService(httpClient, new HttpRequestAuthenticator(serviceParameters));
+            HttpEntityProcessor httpEntityProcessor = new HttpEntityProcessor(httpService);
+            result = httpEntityProcessor.processResponse(httpEntity);
 
         } catch (AuthenticationException e) {
             exceptionHandler.handle(e, progressReporter, "Service Authentication Error: " + e.getMessage());
@@ -62,7 +64,7 @@ public class XrayCucumberService {
         FeatureUploadRequestBuilder featureUploadRequestBuilder = new FeatureUploadRequestBuilder(serviceParameters);
         HttpUriRequest request = featureUploadRequestBuilder.build(featureFile, httpClient);
 
-        HttpRequestHandler httpRequestHandler = new HttpRequestHandler(httpClient, serviceParameters);
-        return httpRequestHandler.executeRequest(request);
+        HttpService httpService = new HttpService(httpClient, new HttpRequestAuthenticator(serviceParameters));
+        return httpService.executeRequest(request);
     }
 }
