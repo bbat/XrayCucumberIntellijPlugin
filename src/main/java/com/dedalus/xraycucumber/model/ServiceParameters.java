@@ -16,20 +16,17 @@ public class ServiceParameters {
     private final String username;
     private final String password;
     private final String projectKey;
-    private final Long filterId;
 
     @JsonCreator
     public ServiceParameters(
             @JsonProperty("url") @NotNull URL url,
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
-            @JsonProperty("projectKey") @NotNull String projectKey,
-            @JsonProperty("filterId") Long filterId) {
+            @JsonProperty("projectKey") @NotNull String projectKey) {
         this.url = url;
         this.username = username;
         this.password = password;
         this.projectKey = projectKey;
-        this.filterId = filterId;
     }
 
     private ServiceParameters(Builder builder) {
@@ -37,7 +34,6 @@ public class ServiceParameters {
         this.username = builder.username;
         this.password = builder.password;
         this.projectKey = builder.projectKey;
-        this.filterId = builder.filterId;
     }
 
     public @NotNull URL getUrl() {
@@ -56,16 +52,11 @@ public class ServiceParameters {
         return projectKey;
     }
 
-    public Long getFilterId() {
-        return filterId;
-    }
-
     public static class Builder {
         private URL url;
         private String username;
         private String password;
         private String projectKey;
-        private Long filterId;
         public Builder url(URL url) {
             this.url = url;
             return this;
@@ -86,10 +77,6 @@ public class ServiceParameters {
             return this;
         }
 
-        public Builder filterId(Long filterId) {
-            this.filterId = filterId;
-            return this;
-        }
         public ServiceParameters build() {
             return new ServiceParameters(this);
         }

@@ -40,7 +40,6 @@ public class JiraCredentialsDialog extends DialogWrapper {
                 .username(usernameField.getText())
                 .password(String.copyValueOf(passwordField.getPassword()))
                 .projectKey(serviceParameters.getProjectKey())
-                .filterId(serviceParameters.getFilterId())
                 .build();
     }
 

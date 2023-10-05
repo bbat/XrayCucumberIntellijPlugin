@@ -21,7 +21,6 @@ public class CredentialManager {
                         .username(serviceParameters.getUsername() == null ? c.getUserName() : serviceParameters.getUsername())
                         .password(serviceParameters.getPassword() == null ? c.getPasswordAsString() : serviceParameters.getPassword())
                         .projectKey(serviceParameters.getProjectKey())
-                        .filterId(serviceParameters.getFilterId())
                         .build())
                 .orElse(serviceParameters);
     }
