@@ -11,8 +11,8 @@ import com.intellij.openapi.ui.DialogWrapper;
 public class JiraCredentialsDialog extends DialogWrapper {
 
     private final ServiceParameters serviceParameters;
-    private JTextField usernameTextField;
-    private JPasswordField passwordPasswordField;
+    private JTextField usernameField;
+    private JPasswordField passwordField;
     private JCheckBox storeCredentialsCheckBox;
     private JPanel rootPanel;
 
@@ -21,8 +21,8 @@ public class JiraCredentialsDialog extends DialogWrapper {
         this.serviceParameters = serviceParameters;
         init();
         setTitle("Credential for " + serviceParameters.getUrl().toExternalForm());
-        usernameTextField.setText(serviceParameters.getUsername());
-        passwordPasswordField.setText(serviceParameters.getPassword());
+        usernameField.setText(serviceParameters.getUsername());
+        passwordField.setText(serviceParameters.getPassword());
 
         CredentialManager credentialManager = new CredentialManager();
         storeCredentialsCheckBox.setSelected(credentialManager.storeByDefault());
@@ -37,8 +37,8 @@ public class JiraCredentialsDialog extends DialogWrapper {
     public ServiceParameters getUpdatedServiceParameters() {
         return new ServiceParameters.Builder()
                 .url(serviceParameters.getUrl())
-                .username(usernameTextField.getText())
-                .password(String.copyValueOf(passwordPasswordField.getPassword()))
+                .username(usernameField.getText())
+                .password(String.copyValueOf(passwordField.getPassword()))
                 .projectKey(serviceParameters.getProjectKey())
                 .filterId(serviceParameters.getFilterId())
                 .build();
@@ -51,6 +51,6 @@ public class JiraCredentialsDialog extends DialogWrapper {
     @Nullable
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return usernameTextField.getText().isEmpty() ? usernameTextField : passwordPasswordField;
+        return usernameField.getText().isEmpty() ? usernameField : passwordField;
     }
 }

@@ -24,6 +24,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
 public class SyncXrayCucumber extends AnAction {
+
     public static final String TITLE = "Cucumber Test And Jira Xray Synchronization";
     private VirtualFile featureFile;
     private VirtualFile serviceParametersFile;
@@ -47,6 +48,7 @@ public class SyncXrayCucumber extends AnAction {
         initFeatureFile(event);
         initServiceParameters(event);
         ProgressManager.getInstance().run(new Task.Backgroundable(project, TITLE) {
+
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 XrayCucumberService xrayCucumberService = new XrayCucumberService(HttpClients.createDefault(), serviceParameters);
                 ProgressIndicatorAdapter progressReporter = new ProgressIndicatorAdapter(progressIndicator, project);
