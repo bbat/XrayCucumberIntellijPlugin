@@ -50,8 +50,7 @@ public class GherkinFileParser {
     private Optional<GherkinDocument> parse(String featureFilePath) throws IOException {
         String featureContent = Files.readString(Paths.get(featureFilePath));
         Envelope envelope = Envelope.of(
-                new Source(
-                        "example.feature",
+                new Source(featureFilePath,
                         featureContent,
                         io.cucumber.messages.types.SourceMediaType.TEXT_X_CUCUMBER_GHERKIN_PLAIN
                 )
