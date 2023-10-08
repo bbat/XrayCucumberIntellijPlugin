@@ -6,8 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import javax.naming.AuthenticationException;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -19,6 +17,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import com.dedalus.xraycucumber.model.ServiceParameters;
 
 public class FeatureUploadRequestBuilder {
+
     private static final String REST_ENDPOINT_IMPORT_FEATURE = "/rest/raven/1.0/import/feature";
 
     private final ServiceParameters serviceParameters;
@@ -28,7 +27,7 @@ public class FeatureUploadRequestBuilder {
     }
 
     public HttpUriRequest build(Path featureFile, HttpClient httpClient)
-            throws AuthenticationException, URISyntaxException, IOException, org.apache.http.auth.AuthenticationException {
+            throws URISyntaxException, IOException {
         String projectKey = Optional.of(serviceParameters.getProjectKey())
                 .orElseThrow(() -> new IllegalArgumentException("projectKey is required to download cucumber tests"));
         URIBuilder uriBuilder = new URIBuilder(serviceParameters.getUrl() + REST_ENDPOINT_IMPORT_FEATURE)

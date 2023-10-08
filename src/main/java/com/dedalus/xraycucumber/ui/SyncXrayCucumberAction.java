@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 
 import com.dedalus.xraycucumber.model.ServiceParameters;
 import com.dedalus.xraycucumber.service.XrayCucumberService;
-import com.dedalus.xraycucumber.ui.utils.NotificationUtils;
 import com.dedalus.xraycucumber.ui.utils.ServiceParametersUtils;
 import com.dedalus.xraycucumber.utils.gherkin.GherkinFileUpdater;
 import com.google.gson.JsonArray;
@@ -23,11 +22,10 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
-public class SyncXrayCucumber extends AnAction {
+public class SyncXrayCucumberAction extends AnAction {
 
     public static final String TITLE = "Cucumber Test And Jira Xray Synchronization";
     private VirtualFile featureFile;
-    private VirtualFile serviceParametersFile;
     private ServiceParameters serviceParameters;
 
     @Override public @NotNull ActionUpdateThread getActionUpdateThread() {
@@ -46,7 +44,11 @@ public class SyncXrayCucumber extends AnAction {
         final Project project = event.getProject();
         FileDocumentManager.getInstance().saveAllDocuments();
         initFeatureFile(event);
-        initServiceParameters(event);
+        try {
+            initServiceParameters(event);
+        } catch (Exception e) {
+            throw new RuntimeException("Service Initilization Failure: " + e.getStackTrace());
+        }
         ProgressManager.getInstance().run(new Task.Backgroundable(project, TITLE) {
 
             public void run(@NotNull ProgressIndicator progressIndicator) {
@@ -75,19 +77,9 @@ public class SyncXrayCucumber extends AnAction {
         featureFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
     }
 
-    private void initServiceParameters(@NotNull final AnActionEvent event) {
+    private void initServiceParameters(@NotNull final AnActionEvent event) throws IOException {
         final Project project = event.getProject();
-
-        if (featureFile != null) {
-            serviceParametersFile = featureFile.findFileByRelativePath("../" + ServiceParametersUtils.XRAY_CUCUMBER_JSON);
-        } else {
-            NotificationUtils.notifyError(project, "Problem while opening feature file");
-        }
-
-        try {
-            serviceParameters = ServiceParametersUtils.getServiceParameters(project, serviceParametersFile);
-        } catch (IOException exception) {
-            NotificationUtils.notifyError(project, exception.getMessage());
-        }
+        ServiceParametersUtils serviceParametersUtils = new ServiceParametersUtils();
+        serviceParameters = serviceParametersUtils.getServiceParameters(project, serviceParameters);
     }
 }
