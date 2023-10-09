@@ -69,13 +69,18 @@ public class HttpService {
         throw new IllegalStateException(message + " (HTTP " + statusCode + ")");
     }
 
-    public void addAuthentication(HttpUriRequest request, JiraServiceParameters serviceParameters) throws AuthenticationException, org.apache.http.auth.AuthenticationException {
+    public void addAuthentication(HttpUriRequest request, JiraServiceParameters serviceParameters)
+            throws AuthenticationException, org.apache.http.auth.AuthenticationException {
         String userName = Optional.ofNullable(serviceParameters.getUsername())
                 .orElseThrow(() -> new AuthenticationException("Username is required"));
         String password = Optional.ofNullable(serviceParameters.getPassword())
                 .orElseThrow(() -> new AuthenticationException("Password is required"));
 
         UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials(userName, password);
-        request.addHeader(new BasicScheme().authenticate(usernamePasswordCredentials, request, null));
+        request.addHeader(createBasicScheme().authenticate(usernamePasswordCredentials, request, null));
+    }
+
+    protected BasicScheme createBasicScheme() {
+        return new BasicScheme();
     }
 }

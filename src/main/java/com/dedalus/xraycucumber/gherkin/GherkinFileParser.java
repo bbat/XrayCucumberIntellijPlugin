@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.intellij.openapi.vfs.VirtualFile;
@@ -24,15 +26,25 @@ public class GherkinFileParser {
     public Map<String, List<String>> getScenariosAndTags(VirtualFile featureFile) {
         String featureFilePath = featureFile.getPath();
         Map<String, List<String>> scenariosWithTags = new HashMap<>();
+        Set<String> seenScenarioNames = new HashSet<>();  // Un ensemble pour garder une trace des noms de scénarios vus.
+
         try {
             Optional<GherkinDocument> gherkinDocument = this.parse(featureFilePath);
             if (gherkinDocument.isEmpty()) {
-                throw new IllegalStateException("Gherkin document is not ready");
+                throw new IllegalStateException("Gherkin Feature Not Ready, probably because it is not correctly formatted");
             } else {
                 gherkinDocument.get().getFeature().ifPresent(feature -> {
+                    if (feature.getChildren().size() == 0) {
+                        throw new IllegalStateException("There are no scenario in the Feature file");
+                    }
                     for (FeatureChild featureChild : feature.getChildren()) {
                         Optional<Scenario> scenario = featureChild.getScenario();
                         if (scenario.isPresent()) {
+                            String scenarioName = scenario.get().getName();
+                            if (seenScenarioNames.contains(scenarioName)) {
+                                throw new IllegalStateException("Duplicate scenario name found: " + scenarioName);
+                            }
+                            seenScenarioNames.add(scenarioName);
                             List<String> tags = scenario.get().getTags().stream()
                                     .map(Tag::getName)
                                     .collect(Collectors.toList());

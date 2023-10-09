@@ -20,6 +20,8 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -55,8 +57,17 @@ public class SyncXrayCucumberAction extends AnAction {
             Map<String, List<String>> cucumberFeatureIssueMap = new GherkinFileParser().getScenariosAndTags(featureFile);
 
             GherkinFileUpdater gherkinFileUpdater = new GherkinFileUpdater();
-            gherkinFileUpdater.addTagsOnScenario(featureFile, jiraXrayIssueMap, cucumberFeatureIssueMap);
+            gherkinFileUpdater.saveBeforeUpdate(featureFile);
+            ApplicationManager.getApplication().runWriteAction(() -> {
+                try {
+                    Document document = FileDocumentManager.getInstance().getDocument(featureFile);
 
+                    FileDocumentManager.getInstance().saveDocument(gherkinFileUpdater.addTagsOnScenario(document, jiraXrayIssueMap, cucumberFeatureIssueMap));
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         } catch (IOException | URISyntaxException | AuthenticationException | org.apache.http.auth.AuthenticationException e) {
             throw new RuntimeException(e);
         }
