@@ -8,7 +8,7 @@
     <name>XrayCucumber</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="bb@bb.com" url="https://www.dedalus.com">Dedalus</vendor>
+    <vendor email="bertrand.batoge@dedalus.com" url="https://www.dedalus.com">Dedalus</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
@@ -30,6 +30,7 @@
         <group id="XrayCucumberActions" text="XrayCucumber" description="Actions for XrayCucumber plugin">
             <add-to-group group-id="EditorPopupMenu" anchor="last" />
             <action id="XrayCucumber.UploadTestToJira"
+                    icon = "/icons/pluginIcon.svg"
                     class="com.dedalus.xraycucumber.actions.SyncXrayCucumberAction"
                     text="Upload This Feature File to Xray"
                     description="Upload this feature file to Xray action">
