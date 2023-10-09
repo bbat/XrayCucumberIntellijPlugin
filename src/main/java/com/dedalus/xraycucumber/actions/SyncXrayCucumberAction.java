@@ -1,4 +1,4 @@
-package com.dedalus.xraycucumber.ui;
+package com.dedalus.xraycucumber.actions;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -10,11 +10,11 @@ import javax.naming.AuthenticationException;
 import org.jetbrains.annotations.NotNull;
 
 import com.dedalus.xraycucumber.mapper.JiraXrayIssueMapper;
-import com.dedalus.xraycucumber.model.JiraServiceParameters;
+import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.dedalus.xraycucumber.service.JiraService;
-import com.dedalus.xraycucumber.ui.utils.ServiceParametersUtils;
-import com.dedalus.xraycucumber.utils.gherkin.GherkinFileParser;
-import com.dedalus.xraycucumber.utils.gherkin.GherkinFileUpdater;
+import com.dedalus.xraycucumber.serviceparameters.ServiceParametersUtils;
+import com.dedalus.xraycucumber.gherkin.GherkinFileParser;
+import com.dedalus.xraycucumber.gherkin.GherkinFileUpdater;
 import com.google.gson.JsonArray;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;

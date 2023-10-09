@@ -1,9 +1,8 @@
-package com.dedalus.xraycucumber.ui.utils;
+package com.dedalus.xraycucumber.serviceparameters;
 
 import java.net.URL;
 import java.util.Optional;
 
-import com.dedalus.xraycucumber.model.JiraServiceParameters;
 import com.dedalus.xraycucumber.ui.dialog.JiraCredentialsDialog;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.CredentialAttributesKt;
@@ -12,7 +11,6 @@ import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.project.Project;
 
 public class CredentialManager {
-
 
     public JiraServiceParameters retrieveCredentialsFromStoreIfUndefined(JiraServiceParameters serviceParameters) {
         return Optional.ofNullable(PasswordSafe.getInstance().get(createCredentialAttributes(serviceParameters.getUrl())))

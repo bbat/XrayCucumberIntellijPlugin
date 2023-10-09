@@ -1,4 +1,4 @@
-package com.dedalus.xraycucumber.utils.gherkin;
+package com.dedalus.xraycucumber.gherkin;
 
 import java.io.IOException;
 import java.nio.file.Files;

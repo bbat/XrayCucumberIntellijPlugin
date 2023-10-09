@@ -12,7 +12,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import com.dedalus.xraycucumber.model.JiraServiceParameters;
+import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.dedalus.xraycucumber.service.http.HttpService;
 import com.dedalus.xraycucumber.service.request.FeatureUploadRequestBuilder;
 import com.dedalus.xraycucumber.service.request.XrayIssueRequestBuilder;

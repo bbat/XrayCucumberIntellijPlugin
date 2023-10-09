@@ -15,7 +15,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.util.EntityUtils;
 
-import com.dedalus.xraycucumber.model.JiraServiceParameters;
+import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 
 public class HttpService {
 

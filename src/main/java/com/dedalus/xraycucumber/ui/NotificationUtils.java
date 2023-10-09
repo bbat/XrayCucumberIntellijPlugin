@@ -1,4 +1,4 @@
-package com.dedalus.xraycucumber.ui.utils;
+package com.dedalus.xraycucumber.ui;
 
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationGroupManager;

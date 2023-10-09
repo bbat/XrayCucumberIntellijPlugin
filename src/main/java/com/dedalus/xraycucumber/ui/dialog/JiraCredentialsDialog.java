@@ -3,8 +3,8 @@ package com.dedalus.xraycucumber.ui.dialog;
 import javax.annotation.Nullable;
 import javax.swing.*;
 
-import com.dedalus.xraycucumber.model.JiraServiceParameters;
-import com.dedalus.xraycucumber.ui.utils.CredentialManager;
+import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
+import com.dedalus.xraycucumber.serviceparameters.CredentialManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 

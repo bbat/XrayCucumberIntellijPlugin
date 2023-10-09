@@ -1,8 +1,7 @@
-package com.dedalus.xraycucumber.ui.utils;
+package com.dedalus.xraycucumber.serviceparameters;
 
 import java.io.IOException;
 
-import com.dedalus.xraycucumber.model.JiraServiceParameters;
 import com.dedalus.xraycucumber.ui.dialog.ServiceParametersDialog;
 import com.intellij.openapi.project.Project;
 

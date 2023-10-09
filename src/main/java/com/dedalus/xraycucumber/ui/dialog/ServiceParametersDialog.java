@@ -6,7 +6,7 @@ import java.net.URL;
 import javax.annotation.Nullable;
 import javax.swing.*;
 
-import com.dedalus.xraycucumber.model.JiraServiceParameters;
+import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 

@@ -13,7 +13,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
-import com.dedalus.xraycucumber.model.JiraServiceParameters;
+import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 
 public class FeatureUploadRequestBuilder {
 

@@ -1,4 +1,4 @@
-package com.dedalus.xraycucumber.model;
+package com.dedalus.xraycucumber.serviceparameters;
 
 import java.net.URL;
 
