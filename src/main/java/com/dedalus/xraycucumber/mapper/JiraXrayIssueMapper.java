@@ -7,7 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class JiraIdMapper {
+public class JiraXrayIssueMapper {
     public Map<String, String> map(JsonArray issues) {
         Map<String, String> scenarioToJiraIdMap = new HashMap<>();
 

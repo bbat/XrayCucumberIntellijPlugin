@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ServiceParameters {
+public class JiraServiceParameters {
 
     @Nonnull
     private final URL url;
@@ -18,7 +18,7 @@ public class ServiceParameters {
     private final String projectKey;
 
     @JsonCreator
-    public ServiceParameters(
+    public JiraServiceParameters(
             @JsonProperty("url") @NotNull URL url,
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
@@ -29,7 +29,7 @@ public class ServiceParameters {
         this.projectKey = projectKey;
     }
 
-    private ServiceParameters(Builder builder) {
+    private JiraServiceParameters(Builder builder) {
         this.url = builder.url;
         this.username = builder.username;
         this.password = builder.password;
@@ -77,8 +77,8 @@ public class ServiceParameters {
             return this;
         }
 
-        public ServiceParameters build() {
-            return new ServiceParameters(this);
+        public JiraServiceParameters build() {
+            return new JiraServiceParameters(this);
         }
     }
 }

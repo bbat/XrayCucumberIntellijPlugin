@@ -1,6 +1,7 @@
 package com.dedalus.xraycucumber.service.http;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.naming.AuthenticationException;
 
@@ -8,21 +9,26 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.util.EntityUtils;
+
+import com.dedalus.xraycucumber.model.JiraServiceParameters;
 
 public class HttpService {
 
     private final HttpClient httpClient;
-    private final HttpRequestAuthenticator httpRequestAuthenticator;
-    public HttpService(HttpClient httpClient, final HttpRequestAuthenticator httpRequestAuthenticator) {
+    private final JiraServiceParameters jiraServiceParameters;
+
+    public HttpService(HttpClient httpClient, final JiraServiceParameters jiraServiceParameters1) {
         this.httpClient = httpClient;
-        this.httpRequestAuthenticator = httpRequestAuthenticator;
+        this.jiraServiceParameters = jiraServiceParameters1;
     }
 
     public HttpEntity executeRequest(HttpUriRequest request) throws IOException, AuthenticationException, org.apache.http.auth.AuthenticationException {
-        httpRequestAuthenticator.addAuthentication(request);
+        addAuthentication(request, jiraServiceParameters);
         HttpResponse httpResponse = httpClient.execute(request);
         HttpEntity httpEntity = httpResponse.getEntity();
 
@@ -61,5 +67,15 @@ public class HttpService {
             message = EntityUtils.toString(httpEntity);
         }
         throw new IllegalStateException(message + " (HTTP " + statusCode + ")");
+    }
+
+    public void addAuthentication(HttpUriRequest request, JiraServiceParameters serviceParameters) throws AuthenticationException, org.apache.http.auth.AuthenticationException {
+        String userName = Optional.ofNullable(serviceParameters.getUsername())
+                .orElseThrow(() -> new AuthenticationException("Username is required"));
+        String password = Optional.ofNullable(serviceParameters.getPassword())
+                .orElseThrow(() -> new AuthenticationException("Password is required"));
+
+        UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials(userName, password);
+        request.addHeader(new BasicScheme().authenticate(usernamePasswordCredentials, request, null));
     }
 }

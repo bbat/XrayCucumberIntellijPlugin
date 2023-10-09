@@ -3,20 +3,20 @@ package com.dedalus.xraycucumber.ui.dialog;
 import javax.annotation.Nullable;
 import javax.swing.*;
 
-import com.dedalus.xraycucumber.model.ServiceParameters;
+import com.dedalus.xraycucumber.model.JiraServiceParameters;
 import com.dedalus.xraycucumber.ui.utils.CredentialManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 
 public class JiraCredentialsDialog extends DialogWrapper {
 
-    private final ServiceParameters serviceParameters;
+    private final JiraServiceParameters serviceParameters;
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JCheckBox storeCredentialsCheckBox;
     private JPanel rootPanel;
 
-    public JiraCredentialsDialog(@Nullable Project project, ServiceParameters serviceParameters) {
+    public JiraCredentialsDialog(@Nullable Project project, JiraServiceParameters serviceParameters) {
         super(project);
         this.serviceParameters = serviceParameters;
         init();
@@ -34,8 +34,8 @@ public class JiraCredentialsDialog extends DialogWrapper {
         return rootPanel;
     }
 
-    public ServiceParameters getUpdatedServiceParameters() {
-        return new ServiceParameters.Builder()
+    public JiraServiceParameters getUpdatedServiceParameters() {
+        return new JiraServiceParameters.Builder()
                 .url(serviceParameters.getUrl())
                 .username(usernameField.getText())
                 .password(String.copyValueOf(passwordField.getPassword()))

@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
-import com.dedalus.xraycucumber.mapper.JiraIdMapper;
+import com.dedalus.xraycucumber.mapper.JiraXrayIssueMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -29,7 +29,7 @@ public class JiraIdMapperTest {
         issue2.addProperty("key", "JIRA-124");
         issues.add(issue2);
 
-        JiraIdMapper jiraIdMapper = new JiraIdMapper();
+        JiraXrayIssueMapper jiraIdMapper = new JiraXrayIssueMapper();
 
         // Act
         Map<String, String> result = jiraIdMapper.map(issues);
@@ -43,7 +43,7 @@ public class JiraIdMapperTest {
     @Test
     void map_ShouldHandleNullOrMissingDataGracefully() {
         // Given
-        JiraIdMapper mapper = new JiraIdMapper();
+        JiraXrayIssueMapper mapper = new JiraXrayIssueMapper();
         JsonArray issues = new JsonArray();
 
         JsonObject issue1 = new JsonObject();
@@ -66,7 +66,7 @@ public class JiraIdMapperTest {
     @Test
     void map_ShouldReturnEmptyMap_WhenNoIssuesProvided() {
         // Given
-        JiraIdMapper mapper = new JiraIdMapper();
+        JiraXrayIssueMapper mapper = new JiraXrayIssueMapper();
         JsonArray issues = new JsonArray(); // Empty issues array
 
         // When
@@ -79,7 +79,7 @@ public class JiraIdMapperTest {
     @Test
     void map_ShouldHandleDuplicateScenariosCorrectly() {
         // Given
-        JiraIdMapper mapper = new JiraIdMapper();
+        JiraXrayIssueMapper mapper = new JiraXrayIssueMapper();
         JsonArray issues = new JsonArray();
 
         JsonObject issue1 = new JsonObject();

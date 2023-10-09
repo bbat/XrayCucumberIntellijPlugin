@@ -9,58 +9,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import com.dedalus.xraycucumber.mapper.JiraIdMapper;
-import com.google.gson.JsonArray;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.vfs.VirtualFile;
 
 public class GherkinFileUpdater {
 
-    public void update(VirtualFile featureFile, JsonArray issues) throws IOException {
-        saveBeforeUpdate(featureFile);
-
-        String updatedFeatureContent = addTagsOnScenario(
-                Files.readAllLines(Paths.get(featureFile.getPath())),
-                new JiraIdMapper().map(issues),
-                new GherkinFileParser().getScenariosAndTags(featureFile));
-
-        Files.write(Paths.get(featureFile.getPath()), updatedFeatureContent.getBytes());
-
-    }
-
-    private String addTagsOnScenario(final List<String> featureLines, final Map<String, String> jiraIdMap, final Map<String, List<String>> scenariosAndTags) {
-        StringBuilder updatedFeatureContent = new StringBuilder();
-
-        for (String line : featureLines) {
-            if (line.trim().toLowerCase().startsWith("scenario:") || line.trim().toLowerCase().startsWith("scenario outline:")) {
-                String scenarioName = extractScenarioName(line);
-
-                String jiraId = jiraIdMap.get(scenarioName);
-                if (shouldAddJiraId(scenariosAndTags, scenarioName, jiraId)) {
-                    updatedFeatureContent.append("@").append(jiraId).append("\n");
-                }
-            }
-            updatedFeatureContent.append(line).append("\n");
-        }
-        return updatedFeatureContent.toString();
-    }
-
-    private String extractScenarioName(String line) {
-        if(line.toLowerCase().contains("outline:")) {
-            return line.trim().substring(17).trim();
-        } else if(line.toLowerCase().contains("scenario:")) {
-            return line.trim().substring(9).trim();
-        } else {
-            throw new IllegalStateException("Scenario line should start with Scenario: or Scenario Outline but found :" + line);
-        }
-    }
-
-    private boolean shouldAddJiraId(Map<String, List<String>> scenariosAndTags, String scenarioName, String jiraId) {
-        return jiraId != null && (scenariosAndTags.get(scenarioName) == null || !scenariosAndTags.get(scenarioName).contains("@" + jiraId));
-    }
-
     private static void saveBeforeUpdate(final VirtualFile featureFile) throws IOException {
-        try{
+        try {
             Path originalPath = Paths.get(featureFile.getPath());
             String originalNameWithoutExtension = originalPath.getFileName().toString().replace(".feature", "");
             String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
@@ -70,6 +29,60 @@ public class GherkinFileUpdater {
         } catch (IOException e) {
             throw new IOException(e);
         }
+    }
 
+    public void addTagsOnScenario(VirtualFile featureFile, final Map<String, String> jiraXrayIssueMap, final Map<String, List<String>> cucumberFeatureIssueMap) throws IOException {
+        saveBeforeUpdate(featureFile);
+
+        ApplicationManager.getApplication().runWriteAction(() -> {
+            Document document = FileDocumentManager.getInstance().getDocument(featureFile);
+
+            if (document != null) {
+                StringBuilder newContent = new StringBuilder();
+
+                for (int i = 0; i < document.getLineCount(); i++) {
+                    int startOffset = document.getLineStartOffset(i);
+                    int endOffset = document.getLineEndOffset(i);
+
+                    String line = document.getText().substring(startOffset, endOffset);
+
+                    if (line.trim().toLowerCase().startsWith("scenario:") || line.trim().toLowerCase().startsWith("scenario outline:")) {
+                        String scenarioName = extractScenarioName(line);
+                        String jiraXrayIssueId = jiraXrayIssueMap.get(scenarioName);
+
+                        if (shouldAddJiraId(cucumberFeatureIssueMap, scenarioName, jiraXrayIssueId)) {
+                            newContent.append("@").append(jiraXrayIssueId).append("\n");
+                        }
+                    }
+                    newContent.append(line).append("\n");
+                }
+
+                document.setText(newContent.toString());
+
+                FileDocumentManager.getInstance().saveDocument(document);
+
+            }
+
+        });
+    }
+
+    private String extractScenarioName(String line) {
+        if (line.toLowerCase().contains("outline:")) {
+            return line.trim().substring(17).trim();
+        } else if (line.toLowerCase().contains("scenario:")) {
+            return line.trim().substring(9).trim();
+        } else {
+            throw new IllegalStateException("Scenario line should start with Scenario: or Scenario Outline but found :" + line);
+        }
+    }
+
+    private boolean shouldAddJiraId(Map<String, List<String>> cucumberFeatureIssueMap, String scenarioName, String jiraId) {
+        List<String> scenarioTags = cucumberFeatureIssueMap.get(scenarioName);
+
+        Optional<String> matchingTag = scenarioTags.stream()
+                .filter(tag -> tag.substring(1).equalsIgnoreCase(jiraId))
+                .findFirst();
+
+        return matchingTag.isEmpty();
     }
 }

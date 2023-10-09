@@ -6,7 +6,7 @@ import java.net.URL;
 import javax.annotation.Nullable;
 import javax.swing.*;
 
-import com.dedalus.xraycucumber.model.ServiceParameters;
+import com.dedalus.xraycucumber.model.JiraServiceParameters;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 
@@ -15,16 +15,16 @@ public class ServiceParametersDialog extends DialogWrapper {
     private JTextField urlField;
     private JTextField testProjectField;
 
-    public ServiceParametersDialog(@Nullable Project project, ServiceParameters serviceParameters) {
+    public ServiceParametersDialog(@Nullable Project project) {
         super(project);
         init();
-        setTitle("Xray and Jira settings:");
+        setTitle("Xray and Jira Settings:");
         urlField.setText("https://jira.qa.dedalus.com/");
         testProjectField.setText("TESTORBIS");
     }
 
-    public ServiceParameters createServiceParameters() throws MalformedURLException {
-        return new ServiceParameters.Builder()
+    public JiraServiceParameters createServiceParameters() throws MalformedURLException {
+        return new JiraServiceParameters.Builder()
                 .url(new URL(urlField.getText()))
                 .projectKey(testProjectField.getText())
                 .build();

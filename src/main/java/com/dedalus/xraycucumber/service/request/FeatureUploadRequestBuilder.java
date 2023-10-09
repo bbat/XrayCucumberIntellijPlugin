@@ -7,26 +7,25 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
-import com.dedalus.xraycucumber.model.ServiceParameters;
+import com.dedalus.xraycucumber.model.JiraServiceParameters;
 
 public class FeatureUploadRequestBuilder {
 
     private static final String REST_ENDPOINT_IMPORT_FEATURE = "/rest/raven/1.0/import/feature";
 
-    private final ServiceParameters serviceParameters;
+    private final JiraServiceParameters serviceParameters;
 
-    public FeatureUploadRequestBuilder(final ServiceParameters serviceParameters) {
+    public FeatureUploadRequestBuilder(final JiraServiceParameters serviceParameters) {
         this.serviceParameters = serviceParameters;
     }
 
-    public HttpUriRequest build(Path featureFile, HttpClient httpClient)
+    public HttpUriRequest build(Path featureFile)
             throws URISyntaxException, IOException {
         String projectKey = Optional.of(serviceParameters.getProjectKey())
                 .orElseThrow(() -> new IllegalArgumentException("projectKey is required to download cucumber tests"));
