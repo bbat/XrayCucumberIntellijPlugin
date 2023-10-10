@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.dedalus.xraycucumber.exceptions.GherkinParseException;
@@ -52,7 +51,7 @@ public class GherkinFileParser {
      * @throws GherkinParseException if the Gherkin feature file is not correctly formatted,
      *                               contains no scenarios, or contains scenarios with duplicate names.
      */
-    public Map<String, List<String>> getScenariosAndTags(VirtualFile featureFile) throws IOException {
+    public Map<String, List<String>> getScenariosAndTags(VirtualFile featureFile) {
         Objects.requireNonNull(featureFile, "The feature file cannot be null");
 
         var featureFilePath = featureFile.getPath();

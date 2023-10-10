@@ -17,18 +17,6 @@ public class JiraServiceParameters {
     private final String password;
     private final String projectKey;
 
-    @JsonCreator
-    public JiraServiceParameters(
-            @JsonProperty("url") @NotNull URL url,
-            @JsonProperty("username") String username,
-            @JsonProperty("password") String password,
-            @JsonProperty("projectKey") @NotNull String projectKey) {
-        this.url = url;
-        this.username = username;
-        this.password = password;
-        this.projectKey = projectKey;
-    }
-
     private JiraServiceParameters(Builder builder) {
         this.url = builder.url;
         this.username = builder.username;

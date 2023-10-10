@@ -1,4 +1,4 @@
-package mapper;
+package com.dedalus.xraycucumber.test.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

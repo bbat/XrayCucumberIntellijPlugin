@@ -12,10 +12,10 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.dedalus.xraycucumber.service.http.HttpService;
 import com.dedalus.xraycucumber.service.request.FeatureUploadRequestBuilder;
 import com.dedalus.xraycucumber.service.request.XrayIssueRequestBuilder;
+import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -23,6 +23,7 @@ import com.google.gson.JsonParser;
 import com.intellij.openapi.vfs.VirtualFile;
 
 public class JiraService {
+
     private final JiraServiceParameters serviceParameters;
 
     public JiraService(final JiraServiceParameters serviceParameters) {
@@ -30,7 +31,6 @@ public class JiraService {
     }
 
     public JsonArray uploadFeatureToXray(VirtualFile featureFile) throws URISyntaxException, IOException, AuthenticationException, org.apache.http.auth.AuthenticationException {
-
         FeatureUploadRequestBuilder featureUploadRequestBuilder = new FeatureUploadRequestBuilder(serviceParameters);
         HttpUriRequest request = featureUploadRequestBuilder.build(Paths.get(featureFile.getPath()));
 

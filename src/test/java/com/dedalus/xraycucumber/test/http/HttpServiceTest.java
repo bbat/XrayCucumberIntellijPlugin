@@ -1,18 +1,23 @@
-package service.http;
+package com.dedalus.xraycucumber.test.http;
 
-import static org.mockito.Mockito.*;
-import org.apache.http.HttpRequest;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.apache.http.auth.AuthenticationException;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.junit.jupiter.api.Test;
+
 import com.dedalus.xraycucumber.service.http.HttpService;
 import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 
-import org.apache.http.auth.AuthenticationException;
-
 public class HttpServiceTest {
+
     @Test
     public void addAuthentication_shouldAddAuthenticationHeader() throws AuthenticationException, javax.naming.AuthenticationException {
         HttpClient mockHttpClient = mock(HttpClient.class);
@@ -24,6 +29,7 @@ public class HttpServiceTest {
         when(mockServiceParameters.getPassword()).thenReturn("pass");
 
         HttpService testService = new HttpService(mockHttpClient, mockServiceParameters) {
+
             @Override
             protected BasicScheme createBasicScheme() {
                 return mockBasicScheme;

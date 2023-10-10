@@ -15,8 +15,7 @@ public class ServiceParametersUtils {
 
         CredentialManager credentialManager = new CredentialManager();
         serviceParameters = credentialManager.retrieveCredentialsFromStoreIfUndefined(serviceParameters);
-
-        if (serviceParameters.getUsername() == null || serviceParameters.getPassword() == null) {
+        if (serviceParameters.getUsername().isEmpty() || serviceParameters.getPassword().isEmpty()) {
             serviceParameters = credentialManager.requestJiraCredentialsFromUser(project, serviceParameters);
         }
         return serviceParameters;

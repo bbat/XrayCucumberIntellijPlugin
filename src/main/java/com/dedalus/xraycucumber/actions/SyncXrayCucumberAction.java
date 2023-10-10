@@ -4,19 +4,19 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.naming.AuthenticationException;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.dedalus.xraycucumber.mapper.JiraXrayIssueMapper;
-import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
-import com.dedalus.xraycucumber.service.JiraService;
-import com.dedalus.xraycucumber.serviceparameters.ServiceParametersUtils;
 import com.dedalus.xraycucumber.gherkin.GherkinFileParser;
 import com.dedalus.xraycucumber.gherkin.GherkinFileUpdater;
+import com.dedalus.xraycucumber.mapper.JiraXrayIssueMapper;
+import com.dedalus.xraycucumber.service.JiraService;
+import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
+import com.dedalus.xraycucumber.serviceparameters.ServiceParametersUtils;
 import com.google.gson.JsonArray;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -27,11 +27,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
 public class SyncXrayCucumberAction extends AnAction {
-    private JiraServiceParameters jiraServiceParameters;
 
-    @Override public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return super.getActionUpdateThread();
-    }
+    private JiraServiceParameters jiraServiceParameters;
 
     @Override
     public void update(AnActionEvent event) {
@@ -59,16 +56,12 @@ public class SyncXrayCucumberAction extends AnAction {
             GherkinFileUpdater gherkinFileUpdater = new GherkinFileUpdater();
             gherkinFileUpdater.saveBeforeUpdate(featureFile);
             ApplicationManager.getApplication().runWriteAction(() -> {
-                try {
-                    Document document = FileDocumentManager.getInstance().getDocument(featureFile);
+                Document document = FileDocumentManager.getInstance().getDocument(featureFile);
+                Objects.requireNonNull(document);
+                FileDocumentManager.getInstance().saveDocument(gherkinFileUpdater.addTagsOnScenario(document, jiraXrayIssueMap, cucumberFeatureIssueMap));
 
-                    FileDocumentManager.getInstance().saveDocument(gherkinFileUpdater.addTagsOnScenario(document, jiraXrayIssueMap, cucumberFeatureIssueMap));
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
             });
-        } catch (IOException | URISyntaxException | AuthenticationException | org.apache.http.auth.AuthenticationException e) {
+        } catch (URISyntaxException | AuthenticationException | org.apache.http.auth.AuthenticationException | IOException e) {
             throw new RuntimeException(e);
         }
     }
