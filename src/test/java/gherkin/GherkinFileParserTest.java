@@ -6,18 +6,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.dedalus.xraycucumber.exceptions.GherkinParseException;
 import com.dedalus.xraycucumber.gherkin.GherkinFileParser;
 import com.intellij.openapi.vfs.VirtualFile;
 
 public class GherkinFileParserTest {
 
     @Test
-    public void testGetScenariosAndTagsNominal() {
+    public void testGetScenariosAndTagsNominal() throws IOException {
         // Arrange
         GherkinFileParser parser = new GherkinFileParser();
         VirtualFile featureFile = mock(VirtualFile.class);
@@ -35,7 +37,7 @@ public class GherkinFileParserTest {
     }
 
     @Test
-    public void testGetScenariosAndTags_EmptyFile() {
+    public void testGetScenariosAndTags_EmptyFile() throws IOException {
         // Arrange
         GherkinFileParser parser = new GherkinFileParser();
         VirtualFile featureFile = mock(VirtualFile.class);
@@ -76,7 +78,7 @@ public class GherkinFileParserTest {
         when(featureFile.getPath()).thenReturn(dummyFeaturePath);
 
         // Act & Assert
-        assertThrows(IllegalStateException.class, () -> parser.getScenariosAndTags(featureFile),
+        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(featureFile),
                 "Expected IllegalStateException to be thrown for malformed feature file");
     }
 
@@ -90,12 +92,12 @@ public class GherkinFileParserTest {
         when(featureFile.getPath()).thenReturn(dummyFeaturePath);
 
         // Act & Assert
-        assertThrows(IllegalStateException.class, () -> parser.getScenariosAndTags(featureFile),
+        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(featureFile),
                 "Expected IllegalStateException to be thrown for scenario less feature file");
     }
 
     @Test
-    public void testGetScenariosAndTags_TagLessScenario() {
+    public void testGetScenariosAndTags_TagLessScenario() throws IOException {
         // Arrange
         GherkinFileParser parser = new GherkinFileParser();
         VirtualFile featureFile = mock(VirtualFile.class);
@@ -128,7 +130,7 @@ public class GherkinFileParserTest {
         when(featureFile.getPath()).thenReturn(featureFilePath);
 
         // Act&Assert
-        assertThrows(IllegalStateException.class, () -> parser.getScenariosAndTags(featureFile),
+        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(featureFile),
                 "Expected IllegalStateException to be thrown for scenario less feature file");
     }
 }
