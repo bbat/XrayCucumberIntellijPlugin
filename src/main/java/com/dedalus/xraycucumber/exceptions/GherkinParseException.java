@@ -2,6 +2,7 @@ package com.dedalus.xraycucumber.exceptions;
 
 // Custom exception class
 public class GherkinParseException extends RuntimeException {
+
     public GherkinParseException(String message) {
         super(message);
     }

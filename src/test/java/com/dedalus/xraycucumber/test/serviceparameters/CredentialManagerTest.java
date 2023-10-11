@@ -28,7 +28,7 @@ import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 
-public class CredentialManagerTest {
+class CredentialManagerTest {
     @Mock
     private PasswordSafe passwordSafe;
     @Mock
@@ -43,7 +43,7 @@ public class CredentialManagerTest {
     }
 
     @Test
-    public void testRetrieveCredentialsFromStoreIfUndefined_withNullCredentials_returnsSameParams() throws MalformedURLException {
+    void testRetrieveCredentialsFromStoreIfUndefined_withNullCredentials_returnsSameParams() throws MalformedURLException {
         PasswordSafeWrapper passwordSafeWrapper = mock(PasswordSafeWrapper.class);
         when(passwordSafeWrapper.get(any())).thenReturn(null);
 
@@ -58,7 +58,7 @@ public class CredentialManagerTest {
     }
 
     @Test
-    public void testRetrieveCredentialsFromStoreIfUndefined_withNonNullCredentials_returnsModifiedParams() throws MalformedURLException {
+    void testRetrieveCredentialsFromStoreIfUndefined_withNonNullCredentials_returnsModifiedParams() throws MalformedURLException {
         PasswordSafeWrapper passwordSafeWrapper = mock(PasswordSafeWrapper.class);
         when(passwordSafeWrapper.get(any())).thenReturn(new Credentials("username", "password"));
 
@@ -75,7 +75,7 @@ public class CredentialManagerTest {
     }
 
     @Test
-    public void testStoreCredentials_callsPasswordSafeWithCorrectParams() throws MalformedURLException {
+    void testStoreCredentials_callsPasswordSafeWithCorrectParams() throws MalformedURLException {
         PasswordSafeWrapper passwordSafeWrapper = mock(PasswordSafeWrapper.class);
         CredentialManager credentialManager = new CredentialManager(passwordSafeWrapper);
 
@@ -90,7 +90,7 @@ public class CredentialManagerTest {
     }
 
     @Test
-    public void testDeleteCredentials_callsPasswordSafeWithCorrectParams() throws MalformedURLException {
+    void testDeleteCredentials_callsPasswordSafeWithCorrectParams() throws MalformedURLException {
         PasswordSafeWrapper passwordSafeWrapper = mock(PasswordSafeWrapper.class);
         CredentialManager credentialManager = new CredentialManager(passwordSafeWrapper);
 
@@ -103,7 +103,7 @@ public class CredentialManagerTest {
     }
 
     @Test
-    public void testRequestJiraCredentialsFromUser_userChoosesToStoreCredentials_storesCredentials() throws MalformedURLException {
+    void testRequestJiraCredentialsFromUser_userChoosesToStoreCredentials_storesCredentials() throws MalformedURLException {
         PasswordSafeWrapper passwordSafeWrapper = mock(PasswordSafeWrapper.class);
         CredentialManager credentialManager = new CredentialManager(passwordSafeWrapper);
 

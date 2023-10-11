@@ -62,7 +62,7 @@ public class SyncXrayCucumberAction extends AnAction {
 
             });
         } catch (URISyntaxException | AuthenticationException | org.apache.http.auth.AuthenticationException | IOException e) {
-            throw new RuntimeException(e);
+            System.out.println(e);
         }
     }
 

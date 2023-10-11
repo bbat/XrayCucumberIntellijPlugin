@@ -6,13 +6,12 @@ import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+/**
+ * Encapsulates the parameters needed for interacting with a Jira service.
+ */
 public class JiraServiceParameters {
 
-    @Nonnull
-    private final URL url;
+    @Nonnull private final URL url;
     private final String username;
     private final String password;
     private final String projectKey;
@@ -41,10 +40,12 @@ public class JiraServiceParameters {
     }
 
     public static class Builder {
+
         private URL url;
         private String username;
         private String password;
         private String projectKey;
+
         public Builder url(URL url) {
             this.url = url;
             return this;

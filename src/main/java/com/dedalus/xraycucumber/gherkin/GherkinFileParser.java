@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.dedalus.xraycucumber.exceptions.GherkinParseException;
@@ -63,31 +64,38 @@ public class GherkinFileParser {
 
             if (gherkinDocument.isEmpty()) {
                 throw new GherkinParseException("Error reading Gherkin file: " + featureFilePath);
-            } else {
-                gherkinDocument.get().getFeature().ifPresent(feature -> {
-                    if (feature.getChildren().isEmpty()) {
-                        throw new GherkinParseException("There are no scenario in the Feature file");
-                    }
-                    for (FeatureChild featureChild : feature.getChildren()) {
-                        Optional<Scenario> scenario = featureChild.getScenario();
-                        if (scenario.isPresent()) {
-                            String scenarioName = scenario.get().getName();
-                            Objects.requireNonNull(scenarioName, "Scenario name cannot be null");
-                            if (seenScenarioNames.contains(scenarioName)) {
-                                throw new GherkinParseException("Duplicate scenario name found: " + scenarioName);
-                            }
-                            seenScenarioNames.add(scenarioName);
-                            List<String> tags = scenario.get().getTags().stream()
-                                    .map(Tag::getName)
-                                    .collect(Collectors.toList());
-                            scenariosWithTags.put(scenario.get().getName(), tags);
-                        }
-                    }
-                });
-                return scenariosWithTags;
             }
+
+            gherkinDocument.get().getFeature().ifPresent(feature -> processFeatureChildren(feature.getChildren(), seenScenarioNames, scenariosWithTags));
+
+            return scenariosWithTags;
+
         } catch (IOException e) {
             throw new GherkinParseException("Error reading Gherkin file: " + featureFilePath, e);
+        }
+    }
+
+    private void processScenario(Scenario scenario, Set<String> seenScenarioNames, Map<String, List<String>> scenariosWithTags) {
+        String scenarioName = scenario.getName();
+        Objects.requireNonNull(scenarioName, "Scenario name cannot be null");
+
+        if (seenScenarioNames.contains(scenarioName)) {
+            throw new GherkinParseException("Duplicate scenario name found: " + scenarioName);
+        }
+
+        seenScenarioNames.add(scenarioName);
+        List<String> tags = scenario.getTags().stream()
+                .map(Tag::getName)
+                .collect(Collectors.toList());
+        scenariosWithTags.put(scenario.getName(), tags);
+    }
+
+    private void processFeatureChildren(List<FeatureChild> featureChildren, Set<String> seenScenarioNames, Map<String, List<String>> scenariosWithTags) {
+        if (featureChildren.isEmpty()) {
+            throw new GherkinParseException("There are no scenario in the Feature file");
+        }
+        for (FeatureChild featureChild : featureChildren) {
+            featureChild.getScenario().ifPresent(scenario -> processScenario(scenario, seenScenarioNames, scenariosWithTags));
         }
     }
 
