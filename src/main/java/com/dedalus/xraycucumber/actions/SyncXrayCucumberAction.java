@@ -16,7 +16,9 @@ import com.dedalus.xraycucumber.mapper.JiraXrayIssueMapper;
 import com.dedalus.xraycucumber.service.JiraService;
 import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.dedalus.xraycucumber.serviceparameters.ServiceParametersUtils;
+import com.dedalus.xraycucumber.ui.NotificationUtils;
 import com.google.gson.JsonArray;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -26,35 +28,71 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
+/**
+ * Synchronizes Gherkin feature files with Xray through JIRA integration.
+ * <p>
+ * This action triggers the synchronization of a local Gherkin feature file
+ * with associated tests in Xray via JIRA, ensuring that test definitions in JIRA
+ * reflect the current state of the local feature file. The synchronization process
+ * involves the following main steps:
+ * </p>
+ * <ol>
+ *     <li>Uploading the feature file to Xray through JIRA's API.</li>
+ *     <li>Mapping of JIRA Xray issues to scenarios in the feature file.</li>
+ *     <li>Updating the feature file with tags correlating to JIRA issues.</li>
+ *     <li>Backup and update of the local feature file with new/modified tags.</li>
+ * </ol>
+ **/
 public class SyncXrayCucumberAction extends AnAction {
 
     private JiraServiceParameters jiraServiceParameters;
 
-    @Override
-    public void update(AnActionEvent event) {
+    @Override public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return super.getActionUpdateThread();
+    }
+
+    @Override public void update(AnActionEvent event) {
         VirtualFile file = event.getData(CommonDataKeys.VIRTUAL_FILE);
         boolean visible = file != null && file.getName().endsWith(".feature");
         event.getPresentation().setEnabledAndVisible(visible);
     }
 
-    @Override
-    public void actionPerformed(@NotNull final AnActionEvent event) {
+    /**
+     * Executes the action of synchronizing the local feature file with Xray via JIRA.
+     * <p>
+     * Triggered when the user performs the associated UI action,
+     * initiating the synchronization process, which includes uploading the feature file to JIRA,
+     * parsing and mapping issues and scenarios, and updating the local file accordingly.
+     * </p>
+     * <p>
+     * Error handling and user notifications are provided to ensure smooth user experience
+     * and alerting in case of synchronization failures.
+     * </p>
+     *
+     * @param event Event related to the performed action, carrying data about it.
+     */
+    @Override public void actionPerformed(@NotNull final AnActionEvent event) {
+        NotificationUtils notificationUtils = new NotificationUtils(event.getProject());
+
         try {
             FileDocumentManager.getInstance().saveAllDocuments();
+
             VirtualFile featureFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
+            assert featureFile != null;
+            GherkinFileParser gherkinFileParser = new GherkinFileParser();
+            gherkinFileParser.verify(featureFile);
 
             jiraServiceParameters = getServiceParameters(event);
-
-            assert featureFile != null;
             JsonArray jiraUploadResponse = new JiraService(jiraServiceParameters).uploadFeatureToXray(featureFile);
 
             JiraXrayIssueMapper jiraXrayIssueMapper = new JiraXrayIssueMapper();
             Map<String, String> jiraXrayIssueMap = jiraXrayIssueMapper.map(jiraUploadResponse);
 
-            Map<String, List<String>> cucumberFeatureIssueMap = new GherkinFileParser().getScenariosAndTags(featureFile);
+            Map<String, List<String>> cucumberFeatureIssueMap = gherkinFileParser.getScenariosAndTags(featureFile);
 
             GherkinFileUpdater gherkinFileUpdater = new GherkinFileUpdater();
             gherkinFileUpdater.saveBeforeUpdate(featureFile);
+
             ApplicationManager.getApplication().runWriteAction(() -> {
                 Document document = FileDocumentManager.getInstance().getDocument(featureFile);
                 Objects.requireNonNull(document);
@@ -62,7 +100,7 @@ public class SyncXrayCucumberAction extends AnAction {
 
             });
         } catch (URISyntaxException | AuthenticationException | org.apache.http.auth.AuthenticationException | IOException e) {
-            System.out.println(e);
+            notificationUtils.notifyError(String.valueOf(e));
         }
     }
 

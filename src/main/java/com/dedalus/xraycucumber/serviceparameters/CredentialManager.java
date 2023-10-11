@@ -33,8 +33,11 @@ public class CredentialManager {
      */
     public JiraServiceParameters retrieveCredentialsFromStoreIfUndefined(JiraServiceParameters serviceParameters) {
         return Optional.ofNullable(passwordSafeWrapper.get(createCredentialAttributes(serviceParameters.getUrl())))
-                .map(c -> new JiraServiceParameters.Builder().url(serviceParameters.getUrl()).username(serviceParameters.getUsername() == null ? c.getUserName() : serviceParameters.getUsername())
-                        .password(serviceParameters.getPassword() == null ? c.getPasswordAsString() : serviceParameters.getPassword()).projectKey(serviceParameters.getProjectKey()).build()).orElse(serviceParameters);
+                .map(c -> new JiraServiceParameters.Builder()
+                        .url(serviceParameters.getUrl())
+                        .username(serviceParameters.getUsername() == null ? c.getUserName() : serviceParameters.getUsername())
+                        .password(serviceParameters.getPassword() == null ? c.getPasswordAsString() : serviceParameters.getPassword())
+                        .projectKey(serviceParameters.getProjectKey()).build()).orElse(serviceParameters);
     }
 
     /**

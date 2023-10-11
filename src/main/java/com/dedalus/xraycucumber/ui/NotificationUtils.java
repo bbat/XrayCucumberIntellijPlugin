@@ -6,20 +6,26 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 
 public class NotificationUtils {
-    public static void notifyError(Project project, String content) {
-        createNotification(project, content, NotificationType.ERROR);
+
+    private final Project project;
+
+    public NotificationUtils(Project project) {
+        this.project = project;
     }
 
-    public static void notifySuccess(Project project, String content) {
-        createNotification(project, content, NotificationType.INFORMATION);
+    public void notifyError(String content) {
+        createNotification(content, NotificationType.ERROR);
     }
 
-    private static void createNotification(Project project, String content, NotificationType type) {
-        NotificationGroup notificationGroup = NotificationGroupManager.getInstance()
-                .getNotificationGroup("Custom Notification Group");
+    public void notifySuccess(String content) {
+        createNotification(content, NotificationType.INFORMATION);
+    }
 
-        if(notificationGroup == null) {
-            throw new RuntimeException("Notification Group doesn't exist");
+    private void createNotification(String content, NotificationType type) {
+        NotificationGroup notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("Custom Notification Group");
+
+        if (notificationGroup == null) {
+            throw new IllegalStateException("Notification Group doesn't exist");
         } else {
             notificationGroup.createNotification(content, type).notify(project);
         }

@@ -48,10 +48,8 @@ public class GherkinFileParserTest {
         // Assume empty.feature is an empty file.
 
         // Act
-        Map<String, List<String>> result = parser.getScenariosAndTags(featureFile);
-
-        // Assert
-        assertTrue(result.isEmpty(), "Expected no scenarios to be parsed from an empty file");
+        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(featureFile),
+                "Error reading Gherkin file: src/test/resources/empty.feature");
     }
 
     @Test
