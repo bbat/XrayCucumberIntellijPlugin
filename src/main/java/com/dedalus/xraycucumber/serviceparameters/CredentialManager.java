@@ -11,9 +11,13 @@ import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.project.Project;
 
 public class CredentialManager {
+    private final PasswordSafeWrapper passwordSafeWrapper;
 
+    public CredentialManager(PasswordSafeWrapper passwordSafeWrapper) {
+        this.passwordSafeWrapper = passwordSafeWrapper;
+    }
     public JiraServiceParameters retrieveCredentialsFromStoreIfUndefined(JiraServiceParameters serviceParameters) {
-        return Optional.ofNullable(PasswordSafe.getInstance().get(createCredentialAttributes(serviceParameters.getUrl())))
+        return Optional.ofNullable(passwordSafeWrapper.get(createCredentialAttributes(serviceParameters.getUrl())))
                 .map(c -> new JiraServiceParameters.Builder()
                         .url(serviceParameters.getUrl())
                         .username(serviceParameters.getUsername() == null ? c.getUserName() : serviceParameters.getUsername())
@@ -24,30 +28,38 @@ public class CredentialManager {
     }
 
     public JiraServiceParameters requestJiraCredentialsFromUser(Project project, JiraServiceParameters serviceParameters) {
-        JiraCredentialsDialog jiraCredentialsDialog = new JiraCredentialsDialog(project, serviceParameters);
+        JiraCredentialsDialog jiraCredentialsDialog = createJiraCredentialsDialog(project, serviceParameters);
         if (jiraCredentialsDialog.showAndGet()) {
             serviceParameters = jiraCredentialsDialog.getUpdatedServiceParameters();
-            if (jiraCredentialsDialog.storeCredentials()) {
-                storeCredentials(serviceParameters);
-            } else {
-                deleteCredentials(serviceParameters);
-            }
+            handleUserCredentialsDecision(serviceParameters, jiraCredentialsDialog);
             return serviceParameters;
         }
         return null;
     }
 
+    public JiraCredentialsDialog createJiraCredentialsDialog(Project project, JiraServiceParameters serviceParameters) {
+        return new JiraCredentialsDialog(project, serviceParameters);
+    }
+
+    private void handleUserCredentialsDecision(JiraServiceParameters serviceParameters, JiraCredentialsDialog jiraCredentialsDialog) {
+        if (jiraCredentialsDialog.storeCredentials()) {
+            storeCredentials(serviceParameters);
+        } else {
+            deleteCredentials(serviceParameters);
+        }
+    }
+
     public boolean storeByDefault() {
-        return PasswordSafe.getInstance().isRememberPasswordByDefault();
+        return passwordSafeWrapper.isRememberPasswordByDefault();
     }
 
     public void storeCredentials(JiraServiceParameters serviceParameters) {
         Credentials credentials = new Credentials(serviceParameters.getUsername(), serviceParameters.getPassword());
-        PasswordSafe.getInstance().set(createCredentialAttributes(serviceParameters.getUrl()), credentials);
+        passwordSafeWrapper.set(createCredentialAttributes(serviceParameters.getUrl()), credentials);
     }
 
     public void deleteCredentials(JiraServiceParameters serviceParameters) {
-        PasswordSafe.getInstance().set(createCredentialAttributes(serviceParameters.getUrl()), null);
+        passwordSafeWrapper.set(createCredentialAttributes(serviceParameters.getUrl()), null);
     }
 
     private CredentialAttributes createCredentialAttributes(URL jiraUrl) {

@@ -13,7 +13,8 @@ public class ServiceParametersUtils {
             serviceParameters = serviceParametersDialog.createServiceParameters();
         }
 
-        CredentialManager credentialManager = new CredentialManager();
+        //PasswordSafeWrapper passwordSafeWrapper = new PasswordSafeWrapper();
+        CredentialManager credentialManager = new CredentialManager(new PasswordSafeWrapper());
         serviceParameters = credentialManager.retrieveCredentialsFromStoreIfUndefined(serviceParameters);
         if (serviceParameters.getUsername().isEmpty() || serviceParameters.getPassword().isEmpty()) {
             serviceParameters = credentialManager.requestJiraCredentialsFromUser(project, serviceParameters);
