@@ -19,7 +19,7 @@ public class SynchroStartPopup {
 
         String title = "You are about to synchronize this feature file with Xray";
 
-        int result = Messages.showOkCancelDialog(project, message, title, Messages.getQuestionIcon());
+        int result = Messages.showOkCancelDialog(project, message, title, "Ok", "Cancel", Messages.getQuestionIcon());
 
         return result == Messages.OK;
     }

@@ -19,7 +19,6 @@ import io.cucumber.gherkin.GherkinParser;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.FeatureChild;
 import io.cucumber.messages.types.GherkinDocument;
-import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.Source;
 import io.cucumber.messages.types.Tag;
 
@@ -43,6 +42,7 @@ import io.cucumber.messages.types.Tag;
  *
  */
 public class GherkinFileParser {
+    private static final String GHERKIN_READ_ERROR = "Error reading Gherkin file: ";
 
     /**
      * Parses the provided Gherkin feature file and extracts all scenarios and their associated tags.
@@ -64,9 +64,9 @@ public class GherkinFileParser {
                 checkForScenarios(gherkinDocument.get(), featureFilePath, seenScenarioNames);
                 return extractScenariosWithTags(gherkinDocument.get());
             } else
-                throw new GherkinParseException("Error reading Gherkin file: " + featureFilePath);
+                throw new GherkinParseException(GHERKIN_READ_ERROR + featureFilePath);
         } catch (IOException e) {
-            throw new GherkinParseException("Error reading Gherkin file: " + featureFilePath, e);
+            throw new GherkinParseException(GHERKIN_READ_ERROR + featureFilePath, e);
         }
     }
 
@@ -75,7 +75,8 @@ public class GherkinFileParser {
 
         if (scenarioName.isEmpty() || seenScenarioNames.contains(scenarioName)) {
             throw new GherkinParseException("Invalid or duplicate scenario name found: " + scenarioName);
-        } else seenScenarioNames.add(scenarioName);
+        } else
+            seenScenarioNames.add(scenarioName);
     }
 
     public void checkForScenarios(GherkinDocument gherkinDocument, String featureFilePath, Set<String> seenScenarioNames) {
