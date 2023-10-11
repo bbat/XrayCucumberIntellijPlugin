@@ -17,6 +17,10 @@ public class NotificationUtils {
         createNotification(content, NotificationType.ERROR);
     }
 
+    public void notifyInfo(final String content) {
+        createNotification(content, NotificationType.INFORMATION);
+    }
+
     public void notifySuccess(String content) {
         createNotification(content, NotificationType.INFORMATION);
     }

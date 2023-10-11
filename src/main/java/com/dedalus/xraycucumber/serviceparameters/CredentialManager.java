@@ -3,6 +3,7 @@ package com.dedalus.xraycucumber.serviceparameters;
 import java.net.URL;
 import java.util.Optional;
 
+import com.dedalus.xraycucumber.exceptions.UserCancelException;
 import com.dedalus.xraycucumber.ui.dialog.JiraCredentialsDialog;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.CredentialAttributesKt;
@@ -53,8 +54,7 @@ public class CredentialManager {
             serviceParameters = jiraCredentialsDialog.getUpdatedServiceParameters();
             handleUserCredentialsDecision(serviceParameters, jiraCredentialsDialog);
             return serviceParameters;
-        }
-        return null;
+        } else throw new UserCancelException();
     }
 
     /**

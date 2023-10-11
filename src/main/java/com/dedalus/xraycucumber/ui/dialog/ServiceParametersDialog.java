@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 
 public class ServiceParametersDialog extends DialogWrapper {
+
     private JPanel rootPanel;
     private JTextField urlField;
     private JTextField testProjectField;
@@ -18,21 +19,18 @@ public class ServiceParametersDialog extends DialogWrapper {
     public ServiceParametersDialog(@Nullable Project project) {
         super(project);
         init();
-        setTitle("Xray and Jira Settings:");
+
+        setTitle("Please provide Jira Settings:");
+
         urlField.setText("https://jira.qa.dedalus.com/");
         testProjectField.setText("TESTORBIS");
     }
 
     public JiraServiceParameters createServiceParameters() throws MalformedURLException {
-        return new JiraServiceParameters.Builder()
-                .url(new URL(urlField.getText()))
-                .projectKey(testProjectField.getText())
-                .build();
+        return new JiraServiceParameters.Builder().url(new URL(urlField.getText())).projectKey(testProjectField.getText()).build();
     }
 
-    @Nullable
-    @Override
-    protected JComponent createCenterPanel() {
+    @Nullable @Override protected JComponent createCenterPanel() {
         return rootPanel;
     }
 }

@@ -2,6 +2,7 @@ package com.dedalus.xraycucumber.serviceparameters;
 
 import java.io.IOException;
 
+import com.dedalus.xraycucumber.exceptions.UserCancelException;
 import com.dedalus.xraycucumber.ui.dialog.ServiceParametersDialog;
 import com.intellij.openapi.project.Project;
 
@@ -18,19 +19,22 @@ public class ServiceParametersUtils {
      * manager or requested from the user, ensuring that valid credentials are always
      * available or purposely user-aborted.
      *
-     * @param project            the current project, used to interact with UI components.
-     * @param serviceParameters  the initial service parameters, to be managed and verified.
+     * @param project the current project, used to interact with UI components.
      * @return JiraServiceParameters, fully populated with data either entered or retrieved.
      * @throws IOException if any I/O error occurs during parameter retrieval or management.
      */
-    public JiraServiceParameters getServiceParameters(final Project project, JiraServiceParameters serviceParameters) throws IOException {
+    public JiraServiceParameters getServiceParameters(final Project project) throws IOException {
         ServiceParametersDialog serviceParametersDialog = new ServiceParametersDialog(project);
+        JiraServiceParameters serviceParameters;
         if (serviceParametersDialog.showAndGet()) {
             serviceParameters = serviceParametersDialog.createServiceParameters();
+        } else {
+            throw new UserCancelException();
         }
 
         CredentialManager credentialManager = new CredentialManager(new PasswordSafeWrapper());
         serviceParameters = credentialManager.retrieveCredentialsFromStoreIfUndefined(serviceParameters);
+
         if (serviceParameters.getUsername()==null
                 || serviceParameters.getUsername().isEmpty()
                 || serviceParameters.getPassword()==null

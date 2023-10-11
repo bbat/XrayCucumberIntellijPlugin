@@ -10,6 +10,7 @@ import javax.naming.AuthenticationException;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.dedalus.xraycucumber.exceptions.UserCancelException;
 import com.dedalus.xraycucumber.gherkin.GherkinFileParser;
 import com.dedalus.xraycucumber.gherkin.GherkinFileUpdater;
 import com.dedalus.xraycucumber.mapper.JiraXrayIssueMapper;
@@ -17,6 +18,7 @@ import com.dedalus.xraycucumber.service.JiraService;
 import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.dedalus.xraycucumber.serviceparameters.ServiceParametersUtils;
 import com.dedalus.xraycucumber.ui.NotificationUtils;
+import com.dedalus.xraycucumber.ui.SynchroStartPopup;
 import com.google.gson.JsonArray;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -72,41 +74,67 @@ public class SyncXrayCucumberAction extends AnAction {
      * @param event Event related to the performed action, carrying data about it.
      */
     @Override public void actionPerformed(@NotNull final AnActionEvent event) {
-        NotificationUtils notificationUtils = new NotificationUtils(event.getProject());
+        FileDocumentManager.getInstance().saveAllDocuments();
+        Project project = event.getProject();
+
+        NotificationUtils notificationUtils = new NotificationUtils(project);
+        GherkinFileParser gherkinFileParser = new GherkinFileParser();
+        GherkinFileUpdater gherkinFileUpdater = new GherkinFileUpdater();
+        JiraXrayIssueMapper jiraXrayIssueMapper = new JiraXrayIssueMapper();
+
+        Map<String, List<String>> cucumberFeatureIssueMap;
+        Map<String, String> jiraXrayIssueMap;
+
+        VirtualFile featureFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
 
         try {
-            FileDocumentManager.getInstance().saveAllDocuments();
-
-            VirtualFile featureFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-            assert featureFile != null;
-            GherkinFileParser gherkinFileParser = new GherkinFileParser();
-            gherkinFileParser.verify(featureFile);
+            synchroStartUserNotification(project);
+            checkFeatureFileValidity(featureFile);
 
             jiraServiceParameters = getServiceParameters(event);
             JsonArray jiraUploadResponse = new JiraService(jiraServiceParameters).uploadFeatureToXray(featureFile);
 
-            JiraXrayIssueMapper jiraXrayIssueMapper = new JiraXrayIssueMapper();
-            Map<String, String> jiraXrayIssueMap = jiraXrayIssueMapper.map(jiraUploadResponse);
+            jiraXrayIssueMap = jiraXrayIssueMapper.map(jiraUploadResponse);
+            cucumberFeatureIssueMap = gherkinFileParser.getScenariosAndTags(featureFile);
 
-            Map<String, List<String>> cucumberFeatureIssueMap = gherkinFileParser.getScenariosAndTags(featureFile);
-
-            GherkinFileUpdater gherkinFileUpdater = new GherkinFileUpdater();
             gherkinFileUpdater.saveBeforeUpdate(featureFile);
 
             ApplicationManager.getApplication().runWriteAction(() -> {
                 Document document = FileDocumentManager.getInstance().getDocument(featureFile);
                 Objects.requireNonNull(document);
-                FileDocumentManager.getInstance().saveDocument(gherkinFileUpdater.addTagsOnScenario(document, jiraXrayIssueMap, cucumberFeatureIssueMap));
+                Document documentUpdated = gherkinFileUpdater.addTagsOnScenario(document, jiraXrayIssueMap, cucumberFeatureIssueMap);
 
+                FileDocumentManager.getInstance().saveDocument(documentUpdated);
             });
-        } catch (URISyntaxException | AuthenticationException | org.apache.http.auth.AuthenticationException | IOException e) {
+
+            notificationUtils.notifySuccess("This feature file is now synchronized with Xray");
+
+        } catch (UserCancelException e) {
+            notificationUtils.notifyInfo("Action was cancelled by the user");
+
+        }catch (URISyntaxException | AuthenticationException | org.apache.http.auth.AuthenticationException | IOException e) {
             notificationUtils.notifyError(String.valueOf(e));
+
         }
     }
 
-    private JiraServiceParameters getServiceParameters(@NotNull final AnActionEvent event) throws IOException {
+    @NotNull private static GherkinFileParser checkFeatureFileValidity(final VirtualFile featureFile) {
+        assert featureFile != null;
+        GherkinFileParser gherkinFileParser = new GherkinFileParser();
+        gherkinFileParser.verify(featureFile);
+        return gherkinFileParser;
+    }
+
+    private static void synchroStartUserNotification(final Project project) {
+        SynchroStartPopup popup = new SynchroStartPopup(project);
+        if(!popup.show()) {
+            throw new UserCancelException();
+        }
+    }
+
+    private JiraServiceParameters getServiceParameters(@NotNull final AnActionEvent event) throws IOException, UserCancelException {
         final Project project = event.getProject();
         ServiceParametersUtils serviceParametersUtils = new ServiceParametersUtils();
-        return serviceParametersUtils.getServiceParameters(project, jiraServiceParameters);
+        return serviceParametersUtils.getServiceParameters(project);
     }
 }
