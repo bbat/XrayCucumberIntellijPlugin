@@ -7,5 +7,5 @@ Goal
 
 Usage: 
 -	To generate the plugin: run the .\gradlew.bat buildPlugin command from the project root. This will produce a zip file in the build/distribution folder.
--	Install the plugin : in Intellij Settings / plugin / install plugin from disk and chose the zip file.
--	To use the plugin, open a feature file in IntelliJ, right click in it and chose “Upload the feature file to Xray”
+-	Install the plugin : in Intellij Settings / plugin / install plugin from disk and choose the zip file.
+-	To use the plugin, open a feature file in IntelliJ, right click in it and choose “Upload the feature file to Xray”
