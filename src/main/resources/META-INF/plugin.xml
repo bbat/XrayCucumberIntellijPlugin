@@ -24,11 +24,19 @@
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="Custom Notification Group"
                            displayType="BALLOON"/>
+
+        <applicationConfigurable
+                id="com.dedalus.xraycucumber.settings.XrayCucumberSettingsConfigurable"
+                displayName="Xray Cucumber Plugin Settings"
+                instance="com.dedalus.xraycucumber.settings.XrayCucumberSettingsConfigurable"/>
+
+        <applicationService serviceImplementation="com.dedalus.xraycucumber.settings.XrayCucumberSettingsState"/>
+
     </extensions>
 
     <actions>
         <group id="XrayCucumberActions" text="XrayCucumber" description="Actions for XrayCucumber plugin">
-            <add-to-group group-id="EditorPopupMenu" anchor="last" />
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
             <action id="XrayCucumber.Synchronize"
                     class="com.dedalus.xraycucumber.actions.SyncXrayCucumberAction"
                     text="Upload This Feature File to Xray"

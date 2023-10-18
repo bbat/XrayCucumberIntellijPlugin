@@ -46,8 +46,19 @@ import com.intellij.openapi.vfs.VirtualFile;
  * </ol>
  **/
 public class SyncXrayCucumberAction extends AnAction {
+    
+    private static void checkFeatureFileValidity(final VirtualFile featureFile) {
+        assert featureFile != null;
+        GherkinFileParser gherkinFileParser = new GherkinFileParser();
+        gherkinFileParser.verify(featureFile);
+    }
 
-    private JiraServiceParameters jiraServiceParameters;
+    private static void synchroStartUserNotification(final Project project) {
+        SynchroStartPopup popup = new SynchroStartPopup(project);
+        if (!popup.show()) {
+            throw new UserCancelException();
+        }
+    }
 
     @Override public @NotNull ActionUpdateThread getActionUpdateThread() {
         return super.getActionUpdateThread();
@@ -91,7 +102,7 @@ public class SyncXrayCucumberAction extends AnAction {
             synchroStartUserNotification(project);
             checkFeatureFileValidity(featureFile);
 
-            jiraServiceParameters = getServiceParameters(event);
+            final JiraServiceParameters jiraServiceParameters = getServiceParameters(event);
             JsonArray jiraUploadResponse = new JiraService(jiraServiceParameters).uploadFeatureToXray(featureFile);
 
             jiraXrayIssueMap = jiraXrayIssueMapper.map(jiraUploadResponse);
@@ -112,23 +123,9 @@ public class SyncXrayCucumberAction extends AnAction {
         } catch (UserCancelException e) {
             notificationUtils.notifyInfo("Action was cancelled by the user");
 
-        }catch (URISyntaxException | AuthenticationException | org.apache.http.auth.AuthenticationException | IOException e) {
+        } catch (URISyntaxException | AuthenticationException | org.apache.http.auth.AuthenticationException | IOException e) {
             notificationUtils.notifyError(String.valueOf(e));
 
-        }
-    }
-
-    @NotNull private static GherkinFileParser checkFeatureFileValidity(final VirtualFile featureFile) {
-        assert featureFile != null;
-        GherkinFileParser gherkinFileParser = new GherkinFileParser();
-        gherkinFileParser.verify(featureFile);
-        return gherkinFileParser;
-    }
-
-    private static void synchroStartUserNotification(final Project project) {
-        SynchroStartPopup popup = new SynchroStartPopup(project);
-        if(!popup.show()) {
-            throw new UserCancelException();
         }
     }
 
