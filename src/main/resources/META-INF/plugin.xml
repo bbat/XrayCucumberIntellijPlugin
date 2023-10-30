@@ -43,5 +43,14 @@
                     description="Upload this feature file to Xray action">
             </action>
         </group>
+        <group id="MyCustomContextMenuGroup" text="Custom Context Menu" description="Close this Xray Issue" >
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <action id="XrayCucumber.closeXrayIssue"
+                    class="com.dedalus.xraycucumber.actions.CloseXrayIssueAction"
+                    text="Close this Xray Issue"
+                    description="Close this open Xray Issue">
+            </action>
+        </group>
     </actions>
+
 </idea-plugin>
