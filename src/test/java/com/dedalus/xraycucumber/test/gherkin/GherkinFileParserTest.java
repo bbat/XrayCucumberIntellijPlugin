@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.util.List;
 import java.util.Map;
 
@@ -22,13 +23,10 @@ public class GherkinFileParserTest {
     public void testGetScenariosAndTagsNominal() throws IOException {
         // Arrange
         GherkinFileParser parser = new GherkinFileParser();
-        VirtualFile featureFile = mock(VirtualFile.class);
-
         String dummyFeaturePath = "src/test/resources/dummy.feature";
-        when(featureFile.getPath()).thenReturn(dummyFeaturePath);
 
         // Act
-        Map<String, List<String>> result = parser.getScenariosAndTags(featureFile);
+        Map<String, List<String>> result = parser.getScenariosAndTags(dummyFeaturePath);
 
         // Assert
         assertEquals(2, result.size(), "Expected two scenarios parsed");
@@ -37,18 +35,13 @@ public class GherkinFileParserTest {
     }
 
     @Test
-    public void testGetScenariosAndTags_EmptyFile() throws IOException {
+    public void testGetScenariosAndTags_EmptyFile() {
         // Arrange
         GherkinFileParser parser = new GherkinFileParser();
-        VirtualFile featureFile = mock(VirtualFile.class);
-
         String dummyFeaturePath = "src/test/resources/empty.feature";
-        when(featureFile.getPath()).thenReturn(dummyFeaturePath);
-
-        // Assume empty.feature is an empty file.
 
         // Act
-        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(featureFile),
+        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(dummyFeaturePath),
                 "Error reading Gherkin file: src/test/resources/empty.feature");
     }
 
@@ -56,13 +49,10 @@ public class GherkinFileParserTest {
     public void testGetScenariosAndTags_FileNotFound() {
         // Arrange
         GherkinFileParser parser = new GherkinFileParser();
-        VirtualFile featureFile = mock(VirtualFile.class);
-
         String dummyFeaturePath = "path/to/nonexistent.feature";
-        when(featureFile.getPath()).thenReturn(dummyFeaturePath);
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> parser.getScenariosAndTags(featureFile),
+        assertThrows(NoSuchFileException.class, () -> parser.getScenariosAndTags(dummyFeaturePath),
                 "Expected RuntimeException to be thrown for non-existent feature file");
     }
 
@@ -70,13 +60,10 @@ public class GherkinFileParserTest {
     public void testGetScenariosAndTags_MalformedFeatureFile() {
         // Arrange
         GherkinFileParser parser = new GherkinFileParser();
-        VirtualFile featureFile = mock(VirtualFile.class);
-
         String dummyFeaturePath = "src/test/resources/malformed.feature";
-        when(featureFile.getPath()).thenReturn(dummyFeaturePath);
 
         // Act & Assert
-        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(featureFile),
+        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(dummyFeaturePath),
                 "Expected IllegalStateException to be thrown for malformed feature file");
     }
 
@@ -84,13 +71,10 @@ public class GherkinFileParserTest {
     public void testGetScenariosAndTags_ScenarioLessFeatureFile() {
         // Arrange
         GherkinFileParser parser = new GherkinFileParser();
-        VirtualFile featureFile = mock(VirtualFile.class);
-
         String dummyFeaturePath = "src/test/resources/scenarioLess.feature";
-        when(featureFile.getPath()).thenReturn(dummyFeaturePath);
 
         // Act & Assert
-        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(featureFile),
+        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(dummyFeaturePath),
                 "Expected IllegalStateException to be thrown for scenario less feature file");
     }
 
@@ -104,7 +88,7 @@ public class GherkinFileParserTest {
         when(featureFile.getPath()).thenReturn(dummyFeaturePath);
 
         // Act
-        Map<String, List<String>> result = parser.getScenariosAndTags(featureFile);
+        Map<String, List<String>> result = parser.getScenariosAndTags(dummyFeaturePath);
 
         // Assert
         assertTrue(result.containsKey("Test scenario 1"),
@@ -122,13 +106,10 @@ public class GherkinFileParserTest {
     public void testGetScenariosAndTags_DuplicateScenarios() {
         // Arrange
         GherkinFileParser parser = new GherkinFileParser();
-        VirtualFile featureFile = mock(VirtualFile.class);
-
         String featureFilePath = "src/test/resources/featureWithDuplicateScenarios.feature";
-        when(featureFile.getPath()).thenReturn(featureFilePath);
 
         // Act&Assert
-        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(featureFile),
+        assertThrows(GherkinParseException.class, () -> parser.getScenariosAndTags(featureFilePath),
                 "Expected IllegalStateException to be thrown for scenario less feature file");
     }
 }

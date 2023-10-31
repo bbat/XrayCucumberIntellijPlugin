@@ -25,17 +25,14 @@ public class XrayCucumberPluginSettingsComponent {
         jiraUrlField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                // Mettez à jour les boutons "Apply" et "OK" ici
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                // Mettez à jour les boutons "Apply" et "OK" ici
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                // Mettez à jour les boutons "Apply" et "OK" ici
             }
         });
     }

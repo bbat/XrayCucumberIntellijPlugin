@@ -46,12 +46,6 @@ import com.intellij.openapi.vfs.VirtualFile;
  * </ol>
  **/
 public class SyncXrayCucumberAction extends AnAction {
-    
-    private static void checkFeatureFileValidity(final VirtualFile featureFile) {
-        assert featureFile != null;
-        GherkinFileParser gherkinFileParser = new GherkinFileParser();
-        gherkinFileParser.verify(featureFile);
-    }
 
     private static void synchroStartUserNotification(final Project project) {
         SynchroStartPopup popup = new SynchroStartPopup(project);
@@ -100,20 +94,17 @@ public class SyncXrayCucumberAction extends AnAction {
 
         try {
             synchroStartUserNotification(project);
-            checkFeatureFileValidity(featureFile);
-
-            final JiraServiceParameters jiraServiceParameters = getServiceParameters(event);
-            JsonArray jiraUploadResponse = new JiraService(jiraServiceParameters).uploadFeatureToXray(featureFile);
-
+            Objects.requireNonNull(featureFile, "The feature file cannot be null");
+            JsonArray jiraUploadResponse = new JiraService(getServiceParameters(event)).uploadFeatureToXray(featureFile);
             jiraXrayIssueMap = jiraXrayIssueMapper.map(jiraUploadResponse);
-            cucumberFeatureIssueMap = gherkinFileParser.getScenariosAndTags(featureFile);
+
+            cucumberFeatureIssueMap = gherkinFileParser.getScenariosAndTags(featureFile.getPath());
 
             gherkinFileUpdater.saveBeforeUpdate(featureFile);
 
             ApplicationManager.getApplication().runWriteAction(() -> {
                 Document document = FileDocumentManager.getInstance().getDocument(featureFile);
-                Objects.requireNonNull(document);
-                Document documentUpdated = gherkinFileUpdater.addTagsOnScenario(document, jiraXrayIssueMap, cucumberFeatureIssueMap);
+                Document documentUpdated = gherkinFileUpdater.addXrayIssueIdTagsOnScenario(document, jiraXrayIssueMap, cucumberFeatureIssueMap);
 
                 FileDocumentManager.getInstance().saveDocument(documentUpdated);
             });
