@@ -22,9 +22,9 @@ public class HttpService {
     private final HttpClient httpClient;
     private final JiraServiceParameters jiraServiceParameters;
 
-    public HttpService(HttpClient httpClient, final JiraServiceParameters jiraServiceParameters1) {
+    public HttpService(HttpClient httpClient, final JiraServiceParameters jiraServiceParameters) {
         this.httpClient = httpClient;
-        this.jiraServiceParameters = jiraServiceParameters1;
+        this.jiraServiceParameters = jiraServiceParameters;
     }
 
     public HttpEntity executeRequest(HttpUriRequest request) throws IOException, AuthenticationException, org.apache.http.auth.AuthenticationException {
@@ -55,7 +55,7 @@ public class HttpService {
             throw new AuthenticationException("Jira refused authentication (HTTP 401)");
         }
 
-        if (statusCode != HttpStatus.SC_OK) {
+        if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_NO_CONTENT) {
             handleNonOkStatus(httpEntity, statusCode);
         }
     }

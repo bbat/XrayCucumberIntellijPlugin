@@ -14,7 +14,9 @@ import org.apache.http.util.EntityUtils;
 
 import com.dedalus.xraycucumber.exceptions.JiraException;
 import com.dedalus.xraycucumber.service.http.HttpService;
+import com.dedalus.xraycucumber.service.request.CloseXrayIssueRequestBuilder;
 import com.dedalus.xraycucumber.service.request.FeatureUploadRequestBuilder;
+import com.dedalus.xraycucumber.service.request.JiraIssueRequestBuilder;
 import com.dedalus.xraycucumber.service.request.XrayIssueRequestBuilder;
 import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.google.gson.JsonArray;
@@ -22,22 +24,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.intellij.openapi.vfs.VirtualFile;
-
-/**
- * JiraService interacts with Jira and Xray by uploading feature files and retrieving scenario details.
- * This service class provides mechanisms to upload feature files to Xray,
- * and to extract and augment relevant scenario details from Jira tickets.
- * <p>
- * Usage example:
- * <pre>
- *     JiraService jiraService = new JiraService(serviceParameters);
- *     JsonArray uploadResponse = jiraService.uploadFeatureToXray(featureFile);
- *     JsonObject scenarioName = jiraService.getScenarioName(issueUrl);
- * </pre>
- */
 public class JiraService {
 
     private static final String XRAY_ISSUE_FIELD_SUMMARY = "summary";
+    private static final String XRAY_ISSUE_FIELD_STATUS = "status";
+    private static final String XRAY_ISSUE_FIELD_STATUS_NAME = "name";
     private static final String XRAY_ISSUE_FIELD_FIELDS = "fields";
     private static final String XRAY_ISSUE_FIELD_SELF = "self";
     private final JiraServiceParameters serviceParameters;
@@ -46,6 +37,13 @@ public class JiraService {
         this.serviceParameters = serviceParameters;
     }
 
+    public void closeXrayIssue(String xrayIssueId) throws URISyntaxException, IOException, AuthenticationException, org.apache.http.auth.AuthenticationException {
+        CloseXrayIssueRequestBuilder closeXrayIssueRequestBuilder = new CloseXrayIssueRequestBuilder(serviceParameters);
+        HttpUriRequest request = closeXrayIssueRequestBuilder.build(xrayIssueId);
+
+        HttpService httpService = new HttpService(HttpClients.createDefault(), serviceParameters);
+        httpService.executeRequest(request);
+    }
     public JsonArray uploadFeatureToXray(VirtualFile featureFile) throws URISyntaxException, IOException, AuthenticationException, org.apache.http.auth.AuthenticationException {
         FeatureUploadRequestBuilder featureUploadRequestBuilder = new FeatureUploadRequestBuilder(serviceParameters);
         HttpUriRequest request = featureUploadRequestBuilder.build(Paths.get(featureFile.getPath()));
@@ -59,7 +57,7 @@ public class JiraService {
         return addSummaryToJiraIssueList(jiraIssueJsonArray);
     }
 
-    public JsonObject getJiraIssue(String issueUrl) throws URISyntaxException, AuthenticationException, org.apache.http.auth.AuthenticationException, IOException {
+    public JsonObject getJiraIssueFromUrl(String issueUrl) throws URISyntaxException, AuthenticationException, org.apache.http.auth.AuthenticationException, IOException {
         XrayIssueRequestBuilder xrayIssueRequestBuilder = new XrayIssueRequestBuilder();
         HttpUriRequest request = xrayIssueRequestBuilder.build(issueUrl);
 
@@ -86,7 +84,7 @@ public class JiraService {
         if (jiraIssueWithoutSummary.has(XRAY_ISSUE_FIELD_SELF) && !jiraIssueWithoutSummary.get(XRAY_ISSUE_FIELD_SELF).isJsonNull()) {
             String issueUrl = jiraIssueWithoutSummary.get(XRAY_ISSUE_FIELD_SELF).getAsString();
 
-            JsonObject jiraIssueJsonObject = getJiraIssue(issueUrl);
+            JsonObject jiraIssueJsonObject = getJiraIssueFromUrl(issueUrl);
 
             if (jiraIssueJsonObject != null && jiraIssueJsonObject.has(XRAY_ISSUE_FIELD_FIELDS)) {
                 JsonObject jiraIssueFields = jiraIssueJsonObject.getAsJsonObject(XRAY_ISSUE_FIELD_FIELDS);
@@ -104,5 +102,30 @@ public class JiraService {
             throw new JiraException("Jira issue has no url");
         }
         return jiraIssueWithSummary;
+    }
+
+    public String getXrayIssueStatus(final String xrayIssue) throws URISyntaxException, AuthenticationException, org.apache.http.auth.AuthenticationException, IOException {
+        JiraIssueRequestBuilder jiraIssueRequestBuilder = new JiraIssueRequestBuilder(serviceParameters);
+        HttpUriRequest request = jiraIssueRequestBuilder.build(xrayIssue);
+
+        HttpService httpService = new HttpService(HttpClients.createDefault(), serviceParameters);
+        HttpEntity httpEntity = httpService.executeRequest(request);
+
+        String response = EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
+        JsonObject jiraIssueJsonObject = JsonParser.parseString(response).getAsJsonObject();
+
+        if (jiraIssueJsonObject != null && jiraIssueJsonObject.has(XRAY_ISSUE_FIELD_FIELDS)) {
+            JsonObject jiraIssueFields = jiraIssueJsonObject.getAsJsonObject(XRAY_ISSUE_FIELD_FIELDS);
+
+            if (jiraIssueFields.has(XRAY_ISSUE_FIELD_STATUS) && !jiraIssueFields.get(XRAY_ISSUE_FIELD_STATUS).isJsonNull()) {
+                return jiraIssueFields.get(XRAY_ISSUE_FIELD_STATUS).getAsJsonObject().get(XRAY_ISSUE_FIELD_STATUS_NAME).getAsString();
+            } else {
+                throw new JiraException("This issue has no summary");
+            }
+        } else {
+            throw new JiraException("Unexpected error when parsing Issue from Jira");
+        }
+
+
     }
 }
