@@ -20,6 +20,7 @@ import com.dedalus.xraycucumber.serviceparameters.ServiceParametersUtils;
 import com.dedalus.xraycucumber.ui.NotificationUtils;
 import com.dedalus.xraycucumber.ui.SynchroStartPopup;
 import com.google.gson.JsonArray;
+import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -29,6 +30,8 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
 
 public class SyncXrayCucumberAction extends AnAction {
 
@@ -78,6 +81,7 @@ public class SyncXrayCucumberAction extends AnAction {
                 Document documentUpdated = gherkinFileUpdater.addXrayIssueIdTagsOnScenario(document, jiraXrayIssueMap, cucumberFeatureIssueMap);
 
                 FileDocumentManager.getInstance().saveDocument(documentUpdated);
+                reformatCode(event, project, documentUpdated);
             });
 
             notificationUtils.notifySuccess("This feature file is now synchronized with Xray");
@@ -87,8 +91,14 @@ public class SyncXrayCucumberAction extends AnAction {
 
         } catch (URISyntaxException | AuthenticationException | org.apache.http.auth.AuthenticationException | IOException e) {
             notificationUtils.notifyError(String.valueOf(e));
-
         }
+    }
+
+    private static void reformatCode(final @NotNull AnActionEvent event, final Project project, final Document document) {
+        PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
+        assert psiFile != null;
+        new ReformatCodeProcessor(psiFile,false).run();
+        PsiDocumentManager.getInstance(project).commitDocument(document);
     }
 
     private JiraServiceParameters getServiceParameters(@NotNull final AnActionEvent event) throws IOException, UserCancelException {
