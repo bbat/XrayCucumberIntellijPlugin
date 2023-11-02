@@ -8,12 +8,14 @@ import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.dedalus.xraycucumber.serviceparameters.PasswordSafeWrapper;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.ui.components.JBPasswordField;
+import com.intellij.ui.components.JBTextField;
 
 public class JiraCredentialsDialog extends DialogWrapper {
 
     private final JiraServiceParameters serviceParameters;
-    private JTextField usernameField;
-    private JPasswordField passwordField;
+    private JBTextField usernameField;
+    private JBPasswordField passwordField;
     private JCheckBox storeCredentialsCheckBox;
     private JPanel rootPanel;
 

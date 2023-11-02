@@ -14,6 +14,7 @@ import com.dedalus.xraycucumber.exceptions.UserCancelException;
 import com.dedalus.xraycucumber.service.JiraService;
 import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.dedalus.xraycucumber.serviceparameters.ServiceParametersUtils;
+import com.dedalus.xraycucumber.settings.XrayCucumberSettingsState;
 import com.dedalus.xraycucumber.ui.NotificationUtils;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -32,15 +33,7 @@ public class CloseXrayIssueAction extends AnAction {
 
     @Override public void update(AnActionEvent event) {
         VirtualFile virtualFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
-        Project project = event.getProject();
-        String projectKey;
-        ServiceParametersUtils serviceParametersUtils = new ServiceParametersUtils();
-
-        try {
-            projectKey = serviceParametersUtils.getServiceParameters(project).getProjectKey();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String projectKey = Objects.requireNonNull(XrayCucumberSettingsState.getInstance()).xrayTestProjectName;
 
         if (virtualFile != null && virtualFile.getName().endsWith(".feature")) {
             Editor editor = event.getData(PlatformDataKeys.EDITOR);
@@ -72,7 +65,7 @@ public class CloseXrayIssueAction extends AnAction {
             String xrayIssue = Objects.requireNonNull(editor.getSelectionModel().getSelectedText()).trim().substring(1);
 
             try {
-                if(jiraService.getXrayIssueStatus(xrayIssue).equalsIgnoreCase("ouverte")) {
+                if (jiraService.getXrayIssueStatus(xrayIssue).equalsIgnoreCase("ouverte")) {
                     jiraService.closeXrayIssue(xrayIssue);
                     notificationUtils.notifyInfo("This Xray issue " + xrayIssue + " is now closed");
                 } else {
@@ -87,7 +80,7 @@ public class CloseXrayIssueAction extends AnAction {
     }
 
     private boolean isSelectedTextXrayIssue(final String selectedText, final String projectKey) {
-        if (selectedText != null && selectedText.startsWith("@")) {
+        if (selectedText != null && selectedText.trim().startsWith("@")) {
             String text = selectedText.trim().substring(1);
             String regex = "^" + projectKey + "-(\\d+)$";
             Pattern pattern = Pattern.compile(regex);
