@@ -1,6 +1,5 @@
 package com.dedalus.xraycucumber.service.request;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.apache.http.client.methods.HttpPost;
@@ -21,24 +20,12 @@ public class CloseXrayIssueRequestBuilder {
         this.serviceParameters = serviceParameters;
     }
 
-    public HttpUriRequest build(String xrayIssueId) throws URISyntaxException, IOException {
+    public HttpUriRequest build(String xrayIssueId) throws URISyntaxException {
         URIBuilder uriBuilder = new URIBuilder(serviceParameters.getUrl() + REST_ENDPOINT_CLOSE_ISSUE + xrayIssueId + "/transitions").addParameter("expand", "transitions.fields");
         HttpPost request = new HttpPost(uriBuilder.build());
 
-        String requestBody = "{\n"
-                + "  \"update\": {\n"
-                + "    \"comment\": [\n"
-                + "      {\n"
-                + "        \"add\": {\n"
-                + "          \"body\": \"Close this issue from IntelliJ.\"\n"
-                + "        }\n"
-                + "      }\n"
-                + "    ]\n"
-                + "  },\n"
-                + "  \"transition\": {\n"
-                + "    \"id\": \"51\"\n"
-                + "  }\n"
-                + "}";
+        String requestBody = "{\n" + "  \"update\": {\n" + "    \"comment\": [\n" + "      {\n" + "        \"add\": {\n" + "          \"body\": \"Close this issue from IntelliJ.\"\n" + "        }\n" + "      }\n" + "    ]\n" + "  },\n"
+                + "  \"transition\": {\n" + "    \"id\": \"51\"\n" + "  }\n" + "}";
         request.setEntity(new StringEntity(requestBody, ContentType.APPLICATION_JSON));
 
         return request;
