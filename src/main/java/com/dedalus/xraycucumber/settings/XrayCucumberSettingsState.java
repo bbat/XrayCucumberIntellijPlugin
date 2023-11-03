@@ -14,6 +14,8 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 public class XrayCucumberSettingsState implements PersistentStateComponent<XrayCucumberSettingsState> {
     public String jiraUrl;
     public String xrayTestProjectName;
+    public String bearerToken;
+    public boolean tokenAuthentication;
 
     @Nullable @Override public XrayCucumberSettingsState getState() {
         return this;

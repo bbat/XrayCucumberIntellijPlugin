@@ -29,6 +29,8 @@ public class ServiceParametersUtils {
         return new JiraServiceParameters.Builder()
                 .url(serviceParameters.getUrl())
                 .projectKey(serviceParameters.getProjectKey())
+                .tokenAuthenticationEnabled(serviceParameters.isTokenAuthenticationEnabled())
+                .bearerToken(serviceParameters.getBearerToken())
                 .username(username)
                 .password(password)
                 .build();
@@ -40,11 +42,21 @@ public class ServiceParametersUtils {
 
         String jiraUrl = xrayCucumberSettingsState.jiraUrl;
         String xrayTestProjectName = xrayCucumberSettingsState.xrayTestProjectName;
+        String bearerToken = xrayCucumberSettingsState.bearerToken;
+        boolean tokenAuthentication = xrayCucumberSettingsState.tokenAuthentication;
 
-        if (jiraUrl == null || jiraUrl.isEmpty() || xrayTestProjectName == null || xrayTestProjectName.isEmpty()) {
+        if (jiraUrl == null
+                || jiraUrl.isEmpty()
+                || xrayTestProjectName == null
+                || xrayTestProjectName.isEmpty()
+                || bearerToken.isEmpty()) {
             throw new IllegalStateException("Check your settings, Jira URL and test project key should be defined");
         } else {
-            return new JiraServiceParameters.Builder().url(new URL(jiraUrl)).projectKey(xrayTestProjectName).build();
+            return new JiraServiceParameters.Builder()
+                    .url(new URL(jiraUrl))
+                    .projectKey(xrayTestProjectName)
+                    .tokenAuthenticationEnabled(tokenAuthentication)
+                    .bearerToken(bearerToken).build();
         }
     }
 }

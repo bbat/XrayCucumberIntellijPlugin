@@ -35,6 +35,8 @@ public class XrayCucumberSettingsConfigurable implements Configurable {
         assert settings != null;
         boolean modified = !xrayCucumberPluginSettingsComponent.getJiraUrlField().equals(settings.jiraUrl);
         modified |= !xrayCucumberPluginSettingsComponent.getXrayTestProjectField().equals(settings.xrayTestProjectName);
+        modified |= !xrayCucumberPluginSettingsComponent.getBearerTokenField().equals(settings.bearerToken);
+        modified |= !xrayCucumberPluginSettingsComponent.isTokenAuthenticationCheckBoxSelected() == settings.tokenAuthentication;
         return modified && isValid();
     }
 
@@ -45,6 +47,8 @@ public class XrayCucumberSettingsConfigurable implements Configurable {
         if(isValid()) {
             settings.jiraUrl = xrayCucumberPluginSettingsComponent.getJiraUrlField();
             settings.xrayTestProjectName = xrayCucumberPluginSettingsComponent.getXrayTestProjectField();
+            settings.bearerToken = xrayCucumberPluginSettingsComponent.getBearerTokenField();
+            settings.tokenAuthentication = xrayCucumberPluginSettingsComponent.isTokenAuthenticationCheckBoxSelected();
         }
     }
 
@@ -54,6 +58,8 @@ public class XrayCucumberSettingsConfigurable implements Configurable {
         assert settings != null;
         xrayCucumberPluginSettingsComponent.setJiraUrlField(settings.jiraUrl);
         xrayCucumberPluginSettingsComponent.setXrayTestProjectField(settings.xrayTestProjectName);
+        xrayCucumberPluginSettingsComponent.setBearerTokenField(settings.bearerToken);
+        xrayCucumberPluginSettingsComponent.setTokenAuthenticationCheckBoxSelected(settings.tokenAuthentication);
     }
 
     @Override
@@ -62,6 +68,8 @@ public class XrayCucumberSettingsConfigurable implements Configurable {
     }
 
     private boolean isValid() {
-        return !xrayCucumberPluginSettingsComponent.getJiraUrlField().isEmpty() && !xrayCucumberPluginSettingsComponent.getXrayTestProjectField().isEmpty();
+        return !xrayCucumberPluginSettingsComponent.getJiraUrlField().isEmpty()
+                && !xrayCucumberPluginSettingsComponent.getXrayTestProjectField().isEmpty()
+                && !xrayCucumberPluginSettingsComponent.getBearerTokenField().isEmpty();
     }
 }

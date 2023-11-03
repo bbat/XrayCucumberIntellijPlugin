@@ -14,12 +14,16 @@ public class XrayCucumberPluginSettingsComponent {
 
     private final JBTextField xrayTestProjectField = new JBTextField();
     private final JBTextField jiraUrlField = new JBTextField();
+    private final JBTextField bearerTokenField = new JBTextField();
+    private final JCheckBox tokenAuthenticationCheckBox = new JCheckBox("Token Authentication");
     private final JPanel mainPanel;
 
     public XrayCucumberPluginSettingsComponent() {
         mainPanel = FormBuilder.createFormBuilder()
                 .addLabeledComponent(new JBLabel("Jira URL: "), jiraUrlField, 1, false)
                 .addLabeledComponent(new JBLabel("Xray test project name: "), xrayTestProjectField, 1, false)
+                .addLabeledComponent(new JBLabel("Bearer token: "), bearerTokenField, 1, false)
+                .addComponent(tokenAuthenticationCheckBox)
                 .addComponentFillVertically(new JPanel(), 0).getPanel();
 
         jiraUrlField.getDocument().addDocumentListener(new DocumentListener() {
@@ -61,5 +65,22 @@ public class XrayCucumberPluginSettingsComponent {
 
     public void setJiraUrlField(@NotNull String newJiraUrlField) {
         this.jiraUrlField.setText(newJiraUrlField);
+    }
+
+    @NotNull
+    public String getBearerTokenField() {
+        return bearerTokenField.getText();
+    }
+
+    public void setBearerTokenField(@NotNull String newBearerTokenField) {
+        this.bearerTokenField.setText(newBearerTokenField);
+    }
+
+    public boolean isTokenAuthenticationCheckBoxSelected() {
+        return tokenAuthenticationCheckBox.isSelected();
+    }
+
+    public void setTokenAuthenticationCheckBoxSelected(boolean selected) {
+        this.tokenAuthenticationCheckBox.setSelected(selected);
     }
 }

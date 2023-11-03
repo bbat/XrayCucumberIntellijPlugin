@@ -70,11 +70,18 @@ public class HttpService {
     }
 
     public void addAuthentication(HttpUriRequest request, JiraServiceParameters serviceParameters) throws AuthenticationException, org.apache.http.auth.AuthenticationException {
-        String userName = Optional.ofNullable(serviceParameters.getUsername()).orElseThrow(() -> new AuthenticationException("Username is required"));
-        String password = Optional.ofNullable(serviceParameters.getPassword()).orElseThrow(() -> new AuthenticationException("Password is required"));
+        boolean isTokenAuthentication = Optional.of(serviceParameters.isTokenAuthenticationEnabled()).orElse(false);
 
-        UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials(userName, password);
-        request.addHeader(createBasicScheme().authenticate(usernamePasswordCredentials, request, null));
+        if(isTokenAuthentication) {
+            String token = Optional.ofNullable(serviceParameters.getBearerToken()).orElseThrow(() -> new AuthenticationException("Token is required"));
+            request.addHeader("Authorization", "Bearer " + token);
+        } else {
+            String userName = Optional.ofNullable(serviceParameters.getUsername()).orElseThrow(() -> new AuthenticationException("Username is required"));
+            String password = Optional.ofNullable(serviceParameters.getPassword()).orElseThrow(() -> new AuthenticationException("Password is required"));
+
+            UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials(userName, password);
+            request.addHeader(createBasicScheme().authenticate(usernamePasswordCredentials, request, null));
+        }
     }
 
     protected BasicScheme createBasicScheme() {
