@@ -17,6 +17,7 @@ public class JiraServiceParameters {
     private final String projectKey;
     private final String bearerToken;
     private final boolean tokenAuthenticationEnabled;
+    private final boolean saveFeatureBeforeUpdate;
 
     private JiraServiceParameters(Builder builder) {
         this.url = builder.url;
@@ -25,6 +26,7 @@ public class JiraServiceParameters {
         this.projectKey = builder.projectKey;
         this.bearerToken = builder.bearerToken;
         this.tokenAuthenticationEnabled = builder.tokenAuthenticationEnabled;
+        this.saveFeatureBeforeUpdate = builder.saveFeatureBeforeUpdate;
     }
 
     public @NotNull URL getUrl() {
@@ -51,6 +53,8 @@ public class JiraServiceParameters {
         return tokenAuthenticationEnabled;
     }
 
+    public boolean isSaveFeatureBeforeUpdate() { return saveFeatureBeforeUpdate; }
+
     public static class Builder {
 
         private URL url;
@@ -59,6 +63,7 @@ public class JiraServiceParameters {
         private String projectKey;
         private String bearerToken;
         private boolean tokenAuthenticationEnabled;
+        private boolean saveFeatureBeforeUpdate;
 
         public Builder url(URL url) {
             this.url = url;
@@ -87,6 +92,11 @@ public class JiraServiceParameters {
 
         public Builder tokenAuthenticationEnabled(boolean tokenAuthenticationEnabled) {
             this.tokenAuthenticationEnabled = tokenAuthenticationEnabled;
+            return this;
+        }
+
+        public Builder saveFeatureBeforeUpdateEnabled(boolean saveFeatureBeforeUpdate) {
+            this.saveFeatureBeforeUpdate = saveFeatureBeforeUpdate;
             return this;
         }
 

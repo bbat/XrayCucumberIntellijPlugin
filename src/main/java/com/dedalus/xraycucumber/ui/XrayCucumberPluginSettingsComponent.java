@@ -16,6 +16,8 @@ public class XrayCucumberPluginSettingsComponent {
     private final JBTextField jiraUrlField = new JBTextField();
     private final JBTextField bearerTokenField = new JBTextField();
     private final JCheckBox tokenAuthenticationCheckBox = new JCheckBox("Token Authentication");
+    private final JCheckBox saveFeatureBeforeUpdCheckBox = new JCheckBox("Save feature file before update");
+
     private final JPanel mainPanel;
 
     public XrayCucumberPluginSettingsComponent() {
@@ -24,6 +26,7 @@ public class XrayCucumberPluginSettingsComponent {
                 .addLabeledComponent(new JBLabel("Xray test project name: "), xrayTestProjectField, 1, false)
                 .addLabeledComponent(new JBLabel("Bearer token: "), bearerTokenField, 1, false)
                 .addComponent(tokenAuthenticationCheckBox)
+                .addComponent(saveFeatureBeforeUpdCheckBox)
                 .addComponentFillVertically(new JPanel(), 0).getPanel();
 
         jiraUrlField.getDocument().addDocumentListener(new DocumentListener() {
@@ -82,5 +85,13 @@ public class XrayCucumberPluginSettingsComponent {
 
     public void setTokenAuthenticationCheckBoxSelected(boolean selected) {
         this.tokenAuthenticationCheckBox.setSelected(selected);
+    }
+
+    public boolean isSaveFeatureBeforeUpdCheckBoxSelected() {
+        return saveFeatureBeforeUpdCheckBox.isSelected();
+    }
+
+    public void setSaveFeatureBeforeUpdCheckBoxSelected(boolean selected) {
+        this.saveFeatureBeforeUpdCheckBox.setSelected(selected);
     }
 }

@@ -16,6 +16,7 @@ public class XrayCucumberSettingsState implements PersistentStateComponent<XrayC
     public String xrayTestProjectName;
     public String bearerToken;
     public boolean tokenAuthentication;
+    public boolean saveFeatureBeforeUpd;
 
     @Nullable @Override public XrayCucumberSettingsState getState() {
         return this;

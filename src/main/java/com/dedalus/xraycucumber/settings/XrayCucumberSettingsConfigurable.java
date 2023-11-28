@@ -37,6 +37,7 @@ public class XrayCucumberSettingsConfigurable implements Configurable {
         modified |= !xrayCucumberPluginSettingsComponent.getXrayTestProjectField().equals(settings.xrayTestProjectName);
         modified |= !xrayCucumberPluginSettingsComponent.getBearerTokenField().equals(settings.bearerToken);
         modified |= !xrayCucumberPluginSettingsComponent.isTokenAuthenticationCheckBoxSelected() == settings.tokenAuthentication;
+        modified |= !xrayCucumberPluginSettingsComponent.isSaveFeatureBeforeUpdCheckBoxSelected() == settings.saveFeatureBeforeUpd;
         return modified && isValid();
     }
 
@@ -49,6 +50,7 @@ public class XrayCucumberSettingsConfigurable implements Configurable {
             settings.xrayTestProjectName = xrayCucumberPluginSettingsComponent.getXrayTestProjectField();
             settings.bearerToken = xrayCucumberPluginSettingsComponent.getBearerTokenField();
             settings.tokenAuthentication = xrayCucumberPluginSettingsComponent.isTokenAuthenticationCheckBoxSelected();
+            settings.saveFeatureBeforeUpd = xrayCucumberPluginSettingsComponent.isSaveFeatureBeforeUpdCheckBoxSelected();
         }
     }
 
@@ -60,6 +62,7 @@ public class XrayCucumberSettingsConfigurable implements Configurable {
         xrayCucumberPluginSettingsComponent.setXrayTestProjectField(settings.xrayTestProjectName);
         xrayCucumberPluginSettingsComponent.setBearerTokenField(settings.bearerToken);
         xrayCucumberPluginSettingsComponent.setTokenAuthenticationCheckBoxSelected(settings.tokenAuthentication);
+        xrayCucumberPluginSettingsComponent.setSaveFeatureBeforeUpdCheckBoxSelected(settings.saveFeatureBeforeUpd);
     }
 
     @Override

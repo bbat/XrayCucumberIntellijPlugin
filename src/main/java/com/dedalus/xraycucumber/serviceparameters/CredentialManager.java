@@ -27,7 +27,9 @@ public class CredentialManager {
                         .projectKey(serviceParameters.getProjectKey())
                         .bearerToken(serviceParameters.getBearerToken())
                         .tokenAuthenticationEnabled(serviceParameters.isTokenAuthenticationEnabled())
-                        .build()).orElse(serviceParameters);
+                        .saveFeatureBeforeUpdateEnabled(serviceParameters.isSaveFeatureBeforeUpdate())
+                        .build())
+                        .orElse(serviceParameters);
     }
 
     public JiraServiceParameters requestJiraCredentialsFromUser(Project project, JiraServiceParameters serviceParameters) {

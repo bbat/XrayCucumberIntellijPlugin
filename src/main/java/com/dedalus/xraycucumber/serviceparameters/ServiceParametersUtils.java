@@ -3,6 +3,7 @@ package com.dedalus.xraycucumber.serviceparameters;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 import com.dedalus.xraycucumber.settings.XrayCucumberSettingsState;
 import com.intellij.openapi.project.Project;
@@ -22,14 +23,20 @@ public class ServiceParametersUtils {
         String username = serviceParameters.getUsername();
         String password = serviceParameters.getPassword();
 
-        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
-            credentialManager.requestJiraCredentialsFromUser(project, serviceParameters);
+        boolean isTokenAuthentication = Optional.of(serviceParameters.isTokenAuthenticationEnabled()).orElse(false);
+
+        if (!isTokenAuthentication) {
+            if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+                credentialManager.requestJiraCredentialsFromUser(project, serviceParameters);
+            }
         }
+
 
         return new JiraServiceParameters.Builder()
                 .url(serviceParameters.getUrl())
                 .projectKey(serviceParameters.getProjectKey())
                 .tokenAuthenticationEnabled(serviceParameters.isTokenAuthenticationEnabled())
+                .saveFeatureBeforeUpdateEnabled(serviceParameters.isSaveFeatureBeforeUpdate())
                 .bearerToken(serviceParameters.getBearerToken())
                 .username(username)
                 .password(password)
@@ -44,6 +51,7 @@ public class ServiceParametersUtils {
         String xrayTestProjectName = xrayCucumberSettingsState.xrayTestProjectName;
         String bearerToken = xrayCucumberSettingsState.bearerToken;
         boolean tokenAuthentication = xrayCucumberSettingsState.tokenAuthentication;
+        boolean saveFeatureBeforeUpdate = xrayCucumberSettingsState.saveFeatureBeforeUpd;
 
         if (jiraUrl == null
                 || jiraUrl.isEmpty()
@@ -56,7 +64,9 @@ public class ServiceParametersUtils {
                     .url(new URL(jiraUrl))
                     .projectKey(xrayTestProjectName)
                     .tokenAuthenticationEnabled(tokenAuthentication)
-                    .bearerToken(bearerToken).build();
+                    .bearerToken(bearerToken)
+                    .saveFeatureBeforeUpdateEnabled(saveFeatureBeforeUpdate)
+                    .build();
         }
     }
 }

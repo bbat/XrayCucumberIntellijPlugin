@@ -74,8 +74,13 @@ public class SyncXrayCucumberAction extends AnAction {
 
             cucumberFeatureIssueMap = gherkinFileParser.getScenariosAndTags(featureFile.getPath());
 
-            gherkinFileUpdater.saveBeforeUpdate(featureFile);
+            ServiceParametersUtils serviceParametersUtils = new ServiceParametersUtils();
+            JiraServiceParameters serviceParameters = serviceParametersUtils.getServiceParameters(project);
 
+            if(serviceParameters.isSaveFeatureBeforeUpdate()) {
+                gherkinFileUpdater.saveBeforeUpdate(featureFile);
+            }
+            
             ApplicationManager.getApplication().runWriteAction(() -> {
                 Document document = FileDocumentManager.getInstance().getDocument(featureFile);
                 Document documentUpdated = gherkinFileUpdater.addXrayIssueIdTagsOnScenario(document, jiraXrayIssueMap, cucumberFeatureIssueMap);
