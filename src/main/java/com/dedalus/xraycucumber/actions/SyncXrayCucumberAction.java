@@ -28,12 +28,18 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 
 public class SyncXrayCucumberAction extends AnAction {
+    JsonArray jiraUploadResponse;
+    Map<String, List<String>> cucumberFeatureIssueMap;
+    Map<String, String> jiraXrayIssueMap;
 
     private static void synchroStartUserNotification(final Project project) {
         SynchroStartPopup popup = new SynchroStartPopup(project);
@@ -60,43 +66,78 @@ public class SyncXrayCucumberAction extends AnAction {
         GherkinFileParser gherkinFileParser = new GherkinFileParser();
         GherkinFileUpdater gherkinFileUpdater = new GherkinFileUpdater();
         JiraXrayIssueMapper jiraXrayIssueMapper = new JiraXrayIssueMapper();
-
-        Map<String, List<String>> cucumberFeatureIssueMap;
-        Map<String, String> jiraXrayIssueMap;
-
         VirtualFile featureFile = event.getData(CommonDataKeys.VIRTUAL_FILE);
 
+        synchroStartUserNotification(project);
+
         try {
-            synchroStartUserNotification(project);
-            Objects.requireNonNull(featureFile, "The feature file cannot be null");
-            JsonArray jiraUploadResponse = new JiraService(getServiceParameters(event)).uploadFeatureToXray(featureFile);
-            jiraXrayIssueMap = jiraXrayIssueMapper.map(jiraUploadResponse);
+            ProgressManager.getInstance().run(new Task.Backgroundable(project, "Upload feature to Xray") {
+                public void run(@NotNull ProgressIndicator progressIndicator) {
+                  Objects.requireNonNull(featureFile, "The feature file cannot be null");
+                  try {
+                      setJiraUploadResponse(new JiraService(getServiceParameters(event)).uploadFeatureToXray(featureFile));
+                      setJiraXrayIssueMap(jiraXrayIssueMapper.map(getJiraUploadResponse()));
+                      setCucumberFeatureIssueMap(gherkinFileParser.getScenariosAndTags(featureFile.getPath()));
 
-            cucumberFeatureIssueMap = gherkinFileParser.getScenariosAndTags(featureFile.getPath());
+                  } catch (URISyntaxException | IOException | AuthenticationException | org.apache.http.auth.AuthenticationException e) {
+                      notificationUtils.notifyError(String.valueOf(e));
+                  }
+                }
 
-            ServiceParametersUtils serviceParametersUtils = new ServiceParametersUtils();
-            JiraServiceParameters serviceParameters = serviceParametersUtils.getServiceParameters(project);
+                @Override
+                public void onSuccess() {
+                    Objects.requireNonNull(featureFile, "The feature file cannot be null");
+                    ServiceParametersUtils serviceParametersUtils = new ServiceParametersUtils();
+                    JiraServiceParameters serviceParameters;
 
-            if(serviceParameters.isSaveFeatureBeforeUpdate()) {
-                gherkinFileUpdater.saveBeforeUpdate(featureFile);
-            }
-            
-            ApplicationManager.getApplication().runWriteAction(() -> {
-                Document document = FileDocumentManager.getInstance().getDocument(featureFile);
-                Document documentUpdated = gherkinFileUpdater.addXrayIssueIdTagsOnScenario(document, jiraXrayIssueMap, cucumberFeatureIssueMap);
+                    try {
+                        serviceParameters = serviceParametersUtils.getServiceParameters(project);
 
-                FileDocumentManager.getInstance().saveDocument(documentUpdated);
-                reformatCode(event, project, documentUpdated);
+                        if(serviceParameters.isSaveFeatureBeforeUpdate()) {
+                            gherkinFileUpdater.saveBeforeUpdate(featureFile);
+                        }
+
+                        ApplicationManager.getApplication().runWriteAction(() -> {
+                            Document document = FileDocumentManager.getInstance().getDocument(featureFile);
+                            Document documentUpdated = gherkinFileUpdater.addXrayIssueIdTagsOnScenario(document, getJiraXrayIssueMap(), getCucumberFeatureIssueMap());
+
+                            FileDocumentManager.getInstance().saveDocument(documentUpdated);
+                            reformatCode(event, project, documentUpdated);
+                        });
+
+                        notificationUtils.notifySuccess("This feature file is now synchronized with Xray");
+
+                    } catch (IOException e) {
+                        notificationUtils.notifyError(String.valueOf(e));
+                    }
+                }
             });
-
-            notificationUtils.notifySuccess("This feature file is now synchronized with Xray");
-
         } catch (UserCancelException e) {
             notificationUtils.notifyInfo("Action was cancelled by the user");
-
-        } catch (URISyntaxException | AuthenticationException | org.apache.http.auth.AuthenticationException | IOException e) {
-            notificationUtils.notifyError(String.valueOf(e));
         }
+    }
+
+    public Map<String, List<String>> getCucumberFeatureIssueMap() {
+        return cucumberFeatureIssueMap;
+    }
+
+    public JsonArray getJiraUploadResponse() {
+        return jiraUploadResponse;
+    }
+
+    public void setJiraUploadResponse(final JsonArray jiraUploadResponse) {
+        this.jiraUploadResponse = jiraUploadResponse;
+    }
+    public void setCucumberFeatureIssueMap(final Map<String, List<String>> cucumberFeatureIssueMap) {
+        this.cucumberFeatureIssueMap = cucumberFeatureIssueMap;
+    }
+
+    public Map<String, String> getJiraXrayIssueMap() {
+        return jiraXrayIssueMap;
+    }
+
+    public void setJiraXrayIssueMap(final Map<String, String> jiraXrayIssueMap) {
+        this.jiraXrayIssueMap = jiraXrayIssueMap;
     }
 
     private static void reformatCode(final @NotNull AnActionEvent event, final Project project, final Document document) {
