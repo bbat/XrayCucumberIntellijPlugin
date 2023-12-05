@@ -50,7 +50,7 @@ public class GherkinFileParser {
         return scenariosWithTags;
     }
 
-    private Feature parse(String featureFilePath) throws IOException {
+    public Feature parse(String featureFilePath) throws IOException {
         Objects.requireNonNull(featureFilePath, "The feature file path cannot be null");
 
         var featureContent = Files.readString(Paths.get(featureFilePath));

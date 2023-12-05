@@ -32,6 +32,9 @@
 
         <applicationService serviceImplementation="com.dedalus.xraycucumber.settings.XrayCucumberSettingsState"/>
 
+        <toolWindow id="Xray Tools" secondary="true" icon="AllIcons.Toolwindows.WebToolWindow" anchor="right"
+                    factoryClass="com.dedalus.xraycucumber.actions.XrayToolWindowFactory"/>
+
     </extensions>
 
     <actions>
