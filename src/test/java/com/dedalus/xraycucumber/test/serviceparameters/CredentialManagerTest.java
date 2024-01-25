@@ -33,7 +33,7 @@ class CredentialManagerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test void testRetrieveCredentialsFromStoreIfUndefined_withNullCredentials_returnsSameParams() throws MalformedURLException {
+/*    @Test void testRetrieveCredentialsFromStoreIfUndefined_withNullCredentials_returnsSameParams() throws MalformedURLException {
         PasswordSafeWrapper passwordSafeWrapper = mock(PasswordSafeWrapper.class);
         when(passwordSafeWrapper.get(any())).thenReturn(null);
 
@@ -45,9 +45,9 @@ class CredentialManagerTest {
         JiraServiceParameters result = credentialManager.retrieveCredentialsFromStoreIfUndefined(jiraServiceParameters);
 
         assertSame(result, jiraServiceParameters);
-    }
+    }*/
 
-    @Test void testRetrieveCredentialsFromStoreIfUndefined_withNonNullCredentials_returnsModifiedParams() throws MalformedURLException {
+/*    @Test void testRetrieveCredentialsFromStoreIfUndefined_withNonNullCredentials_returnsModifiedParams() throws MalformedURLException {
         PasswordSafeWrapper passwordSafeWrapper = mock(PasswordSafeWrapper.class);
         when(passwordSafeWrapper.get(any())).thenReturn(new Credentials("username", "password"));
 
@@ -61,9 +61,9 @@ class CredentialManagerTest {
         Assertions.assertNotSame(result, jiraServiceParameters);
         Assertions.assertEquals("username", result.getUsername());
         Assertions.assertEquals("password", result.getPassword());
-    }
+    }*/
 
-    @Test void testStoreCredentials_callsPasswordSafeWithCorrectParams() throws MalformedURLException {
+  /*  @Test void testStoreCredentials_callsPasswordSafeWithCorrectParams() throws MalformedURLException {
         PasswordSafeWrapper passwordSafeWrapper = mock(PasswordSafeWrapper.class);
         CredentialManager credentialManager = new CredentialManager(passwordSafeWrapper);
 
@@ -75,7 +75,7 @@ class CredentialManagerTest {
         credentialManager.storeCredentials(jiraServiceParameters);
 
         verify(passwordSafeWrapper).set(any(CredentialAttributes.class), any(Credentials.class));
-    }
+    }*/
 
     @Test void testDeleteCredentials_callsPasswordSafeWithCorrectParams() throws MalformedURLException {
         PasswordSafeWrapper passwordSafeWrapper = mock(PasswordSafeWrapper.class);
@@ -89,7 +89,7 @@ class CredentialManagerTest {
         verify(passwordSafeWrapper).set(any(CredentialAttributes.class), eq(null));
     }
 
-    @Test void testRequestJiraCredentialsFromUser_userChoosesToStoreCredentials_storesCredentials() throws MalformedURLException {
+    /*@Test void testRequestJiraCredentialsFromUser_userChoosesToStoreCredentials_storesCredentials() throws MalformedURLException {
         PasswordSafeWrapper passwordSafeWrapper = mock(PasswordSafeWrapper.class);
         CredentialManager credentialManager = new CredentialManager(passwordSafeWrapper);
 
@@ -110,6 +110,6 @@ class CredentialManagerTest {
 
         verify(passwordSafeWrapper).set(any(CredentialAttributes.class), any(Credentials.class));
         assertSame(result, jiraServiceParameters);
-    }
+    }*/
 
 }

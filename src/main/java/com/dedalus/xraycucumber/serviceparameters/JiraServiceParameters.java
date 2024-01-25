@@ -1,6 +1,7 @@
 package com.dedalus.xraycucumber.serviceparameters;
 
 import java.net.URL;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
@@ -12,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 public class JiraServiceParameters {
 
     @Nonnull private final URL url;
-    private final String username;
-    private final String password;
+    private String username;
+    private String password;
     private final String projectKey;
     private final String bearerToken;
     private final boolean tokenAuthenticationEnabled;
@@ -37,8 +38,16 @@ public class JiraServiceParameters {
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public String getPassword() {
         return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public @NotNull String getProjectKey() {
@@ -55,9 +64,31 @@ public class JiraServiceParameters {
 
     public boolean isSaveFeatureBeforeUpdate() { return saveFeatureBeforeUpdate; }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        JiraServiceParameters other = (JiraServiceParameters) obj;
+
+        return Objects.equals(url, other.url) &&
+                Objects.equals(username, other.username) &&
+                Objects.equals(password, other.password) &&
+                Objects.equals(projectKey, other.projectKey) &&
+                Objects.equals(bearerToken, other.bearerToken) &&
+                tokenAuthenticationEnabled == other.tokenAuthenticationEnabled &&
+                saveFeatureBeforeUpdate == other.saveFeatureBeforeUpdate;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(url, username, password, projectKey, bearerToken, tokenAuthenticationEnabled, saveFeatureBeforeUpdate);
+    }
+
     public static class Builder {
 
         private URL url;
+
         private String username;
         private String password;
         private String projectKey;

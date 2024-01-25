@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.Optional;
 
 import com.dedalus.xraycucumber.settings.XrayCucumberSettingsState;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 
 public class ServiceParametersUtils {
@@ -18,19 +19,21 @@ public class ServiceParametersUtils {
 
     private static JiraServiceParameters updateServiceParametersWithCredentials(final Project project, JiraServiceParameters serviceParameters) {
         CredentialManager credentialManager = new CredentialManager(new PasswordSafeWrapper());
-        serviceParameters = credentialManager.retrieveCredentialsFromStoreIfUndefined(serviceParameters);
+        credentialManager.retrieveCredentialsFromStoreIfUndefined(serviceParameters);
 
-        String username = serviceParameters.getUsername();
-        String password = serviceParameters.getPassword();
+        final JiraServiceParameters[] finalServiceParameters = { serviceParameters };
+        String username = finalServiceParameters[0].getUsername();
+        String password = finalServiceParameters[0].getPassword();
 
-        boolean isTokenAuthentication = Optional.of(serviceParameters.isTokenAuthenticationEnabled()).orElse(false);
+        boolean isTokenAuthentication = Optional.of(finalServiceParameters[0].isTokenAuthenticationEnabled()).orElse(false);
 
         if (!isTokenAuthentication) {
             if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
-                credentialManager.requestJiraCredentialsFromUser(project, serviceParameters);
+                ApplicationManager.getApplication().invokeAndWait(() ->
+                        credentialManager.requestJiraCredentialsFromUser(project, finalServiceParameters[0])
+                );
             }
         }
-
 
         return new JiraServiceParameters.Builder()
                 .url(serviceParameters.getUrl())
@@ -38,10 +41,11 @@ public class ServiceParametersUtils {
                 .tokenAuthenticationEnabled(serviceParameters.isTokenAuthenticationEnabled())
                 .saveFeatureBeforeUpdateEnabled(serviceParameters.isSaveFeatureBeforeUpdate())
                 .bearerToken(serviceParameters.getBearerToken())
-                .username(username)
-                .password(password)
+                .username(finalServiceParameters[0].getUsername())
+                .password(finalServiceParameters[0].getPassword())
                 .build();
     }
+
 
     private JiraServiceParameters getParametersFromSettings() throws MalformedURLException {
         XrayCucumberSettingsState xrayCucumberSettingsState = XrayCucumberSettingsState.getInstance();

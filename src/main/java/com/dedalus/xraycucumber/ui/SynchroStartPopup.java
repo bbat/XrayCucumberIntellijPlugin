@@ -1,26 +1,45 @@
 package com.dedalus.xraycucumber.ui;
 
+import java.awt.*;
+
+import javax.swing.*;
+
+import org.jetbrains.annotations.Nullable;
+
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.DialogWrapper;
 
-public class SynchroStartPopup {
-
-    private final Project project;
+public class SynchroStartPopup extends DialogWrapper {
+    private volatile boolean canceled = false;
+    String title = "Xray feature synchronization";
 
     public SynchroStartPopup(final Project project) {
-        this.project = project;
+        super(project);
+        setTitle(title);
+        init();
     }
 
-    public boolean show() {
-        String message = "This feature will be uploaded to Jira Xray: \n" +
-                "Each scenario in this feature will be converted into a Xray Test Case\n" +
-                "Xray Test Case Id will be added to the corresponding scenario as a tag\n" +
-                "Please Note that this can take up to ten seconds, depending on the size of your feature and Jira's state of readiness.\n";
+    public boolean isCanceled() {
+        return canceled;
+    }
 
-        String title = "You are about to synchronize this feature file with Xray";
+    @Override protected @Nullable JComponent createCenterPanel() {
+        JPanel dialogPanel = new JPanel(new BorderLayout());
 
-        int result = Messages.showOkCancelDialog(project, message, title, "Ok", "Cancel", Messages.getQuestionIcon());
+        JTextArea textArea = new JTextArea("""
+                This feature will be uploaded to Jira Xray:
+                Each scenario in this feature will be converted into a Xray Test Case
+                Xray Test Case Id will be added to the corresponding scenario as a tag
+                """);
 
-        return result == Messages.OK;
+        textArea.setPreferredSize(new Dimension(100, 100));
+        dialogPanel.add(textArea, BorderLayout.CENTER);
+
+        return dialogPanel;
+    }
+
+    @Override public void doCancelAction() {
+        canceled = true;
+        super.doCancelAction();
     }
 }
