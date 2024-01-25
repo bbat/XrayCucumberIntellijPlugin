@@ -15,20 +15,27 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.util.EntityUtils;
 
-import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
+import com.intellij.credentialStore.Credentials;
 
 public class HttpService {
 
     private final HttpClient httpClient;
-    private final JiraServiceParameters jiraServiceParameters;
 
-    public HttpService(HttpClient httpClient, final JiraServiceParameters jiraServiceParameters) {
+    public HttpService(HttpClient httpClient) {
         this.httpClient = httpClient;
-        this.jiraServiceParameters = jiraServiceParameters;
     }
 
-    public HttpEntity executeRequest(HttpUriRequest request) throws IOException, AuthenticationException, org.apache.http.auth.AuthenticationException {
-        addAuthentication(request, jiraServiceParameters);
+    public HttpEntity executeRequest(HttpUriRequest request, Credentials credentials) throws IOException, AuthenticationException, org.apache.http.auth.AuthenticationException {
+        addAuthentication(request, credentials);
+        HttpResponse httpResponse = httpClient.execute(request);
+        HttpEntity httpEntity = httpResponse.getEntity();
+
+        validateHttpResponse(httpResponse, httpEntity);
+        return httpEntity;
+    }
+
+    public HttpEntity executeRequest(HttpUriRequest request, String token) throws IOException, AuthenticationException {
+        addAuthentication(request, token);
         HttpResponse httpResponse = httpClient.execute(request);
         HttpEntity httpEntity = httpResponse.getEntity();
 
@@ -69,19 +76,16 @@ public class HttpService {
         throw new IllegalStateException(message + " (HTTP " + statusCode + ")");
     }
 
-    public void addAuthentication(HttpUriRequest request, JiraServiceParameters serviceParameters) throws AuthenticationException, org.apache.http.auth.AuthenticationException {
-        boolean isTokenAuthentication = Optional.of(serviceParameters.isTokenAuthenticationEnabled()).orElse(false);
+    public void addAuthentication(HttpUriRequest request, Credentials credentials) throws AuthenticationException, org.apache.http.auth.AuthenticationException {
+        String userName = Optional.ofNullable(credentials.getUserName()).orElseThrow(() -> new AuthenticationException("Username is required"));
+        String password = Optional.ofNullable(credentials.getPasswordAsString()).orElseThrow(() -> new AuthenticationException("Password is required"));
 
-        if(isTokenAuthentication) {
-            String token = Optional.ofNullable(serviceParameters.getBearerToken()).orElseThrow(() -> new AuthenticationException("Token is required"));
-            request.addHeader("Authorization", "Bearer " + token);
-        } else {
-            String userName = Optional.ofNullable(serviceParameters.getUsername()).orElseThrow(() -> new AuthenticationException("Username is required"));
-            String password = Optional.ofNullable(serviceParameters.getPassword()).orElseThrow(() -> new AuthenticationException("Password is required"));
+        UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials(userName, password);
+        request.addHeader(createBasicScheme().authenticate(usernamePasswordCredentials, request, null));
+    }
 
-            UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials(userName, password);
-            request.addHeader(createBasicScheme().authenticate(usernamePasswordCredentials, request, null));
-        }
+    public void addAuthentication(HttpUriRequest request, String token) {
+        request.addHeader("Authorization", "Bearer " + token);
     }
 
     protected BasicScheme createBasicScheme() {

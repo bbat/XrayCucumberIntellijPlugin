@@ -10,7 +10,6 @@ import javax.naming.AuthenticationException;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.dedalus.xraycucumber.exceptions.UserCancelException;
 import com.dedalus.xraycucumber.service.JiraService;
 import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.dedalus.xraycucumber.serviceparameters.ServiceParametersUtils;
@@ -54,9 +53,13 @@ public class CloseXrayIssueAction extends AnAction {
         NotificationUtils notificationUtils = new NotificationUtils(project);
         Editor editor = event.getData(PlatformDataKeys.EDITOR);
         JiraService jiraService;
+        JiraServiceParameters jiraServiceParameters;
 
         try {
-            jiraService = new JiraService(getServiceParameters(event));
+            ServiceParametersUtils serviceParametersUtils = new ServiceParametersUtils(project);
+            jiraServiceParameters = serviceParametersUtils.getServiceParameters();
+            jiraService = serviceParametersUtils.getJiraService(jiraServiceParameters);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -65,7 +68,7 @@ public class CloseXrayIssueAction extends AnAction {
             String xrayIssue = Objects.requireNonNull(editor.getSelectionModel().getSelectedText()).trim().substring(1);
 
             try {
-                if (jiraService.getXrayIssueStatus(xrayIssue).equalsIgnoreCase("ouverte")) {
+                if (jiraService.getXrayIssueStatus(xrayIssue).equalsIgnoreCase("open")) {
                     jiraService.closeXrayIssue(xrayIssue);
                     notificationUtils.notifyInfo("This Xray issue " + xrayIssue + " is now closed");
                 } else {
@@ -90,11 +93,5 @@ public class CloseXrayIssueAction extends AnAction {
         } else {
             return false;
         }
-    }
-
-    private JiraServiceParameters getServiceParameters(@NotNull final AnActionEvent event) throws IOException, UserCancelException {
-        final Project project = event.getProject();
-        ServiceParametersUtils serviceParametersUtils = new ServiceParametersUtils();
-        return serviceParametersUtils.getServiceParameters(project);
     }
 }

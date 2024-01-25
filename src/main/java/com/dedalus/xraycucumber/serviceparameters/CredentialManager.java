@@ -3,7 +3,6 @@ package com.dedalus.xraycucumber.serviceparameters;
 import java.net.URL;
 import java.util.Optional;
 
-import com.dedalus.xraycucumber.exceptions.UserCancelException;
 import com.dedalus.xraycucumber.ui.dialog.JiraCredentialsDialog;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.CredentialAttributesKt;
@@ -18,32 +17,18 @@ public class CredentialManager {
         this.passwordSafeWrapper = passwordSafeWrapper;
     }
 
-    public JiraServiceParameters retrieveCredentialsFromStoreIfUndefined(JiraServiceParameters serviceParameters) {
-        JiraServiceParameters updatedParameters = Optional.ofNullable(passwordSafeWrapper.get(createCredentialAttributes(serviceParameters.getUrl())))
-                .map(c -> {
-                    if (serviceParameters.getUsername() == null) {
-                        serviceParameters.setUsername(c.getUserName());
-                    }
-                    if (serviceParameters.getPassword() == null) {
-                        serviceParameters.setPassword(c.getPasswordAsString());
-                    }
-                    return serviceParameters;
-                })
-                .orElse(serviceParameters);
-
-        return updatedParameters;
+    public Optional<Credentials> retrieveJiraCredentialsFromStore(URL jiraURL) {
+        return Optional.ofNullable(passwordSafeWrapper.get(createCredentialAttributes(jiraURL)));
     }
 
-    public JiraServiceParameters requestJiraCredentialsFromUser(Project project, JiraServiceParameters serviceParameters) {
+    public Credentials getJiraCredentialsFromUser(Project project, JiraServiceParameters serviceParameters) {
         JiraCredentialsDialog jiraCredentialsDialog = createJiraCredentialsDialog(project, serviceParameters);
         if (jiraCredentialsDialog.showAndGet()) {
-            serviceParameters.setUsername(jiraCredentialsDialog.getUpdatedServiceParameters().getUsername());
-            serviceParameters.setPassword(jiraCredentialsDialog.getUpdatedServiceParameters().getPassword());
-
-            handleUserCredentialsDecision(serviceParameters, jiraCredentialsDialog);
-
-        } //else throw new UserCancelException();
-        return serviceParameters;
+            Credentials credentialsFromUser = jiraCredentialsDialog.getCredentialsFromUser();
+            handleUserCredentialsDecision(serviceParameters.getUrl(), credentialsFromUser, jiraCredentialsDialog);
+            return credentialsFromUser;
+        } else
+            throw new IllegalStateException("Credentials dialogBox not shown");
     }
 
     public JiraCredentialsDialog createJiraCredentialsDialog(Project project, JiraServiceParameters serviceParameters) {
@@ -54,24 +39,23 @@ public class CredentialManager {
         return passwordSafeWrapper.isRememberPasswordByDefault();
     }
 
-    public void storeCredentials(JiraServiceParameters serviceParameters) {
-        Credentials credentials = new Credentials(serviceParameters.getUsername(), serviceParameters.getPassword());
-        passwordSafeWrapper.set(createCredentialAttributes(serviceParameters.getUrl()), credentials);
+    public void storeCredentials(URL url, Credentials credentials) {
+        passwordSafeWrapper.set(createCredentialAttributes(url), credentials);
     }
 
-    public void deleteCredentials(JiraServiceParameters serviceParameters) {
-        passwordSafeWrapper.set(createCredentialAttributes(serviceParameters.getUrl()), null);
+    public void deleteCredentials(URL url) {
+        passwordSafeWrapper.set(createCredentialAttributes(url), null);
     }
 
     private CredentialAttributes createCredentialAttributes(URL jiraUrl) {
         return new CredentialAttributes(CredentialAttributesKt.generateServiceName("Jira", jiraUrl.toExternalForm()));
     }
 
-    private void handleUserCredentialsDecision(JiraServiceParameters serviceParameters, JiraCredentialsDialog jiraCredentialsDialog) {
+    private void handleUserCredentialsDecision(URL url, Credentials credentials, JiraCredentialsDialog jiraCredentialsDialog) {
         if (jiraCredentialsDialog.storeCredentials()) {
-            storeCredentials(serviceParameters);
+            storeCredentials(url, credentials);
         } else {
-            deleteCredentials(serviceParameters);
+            deleteCredentials(url);
         }
     }
 }

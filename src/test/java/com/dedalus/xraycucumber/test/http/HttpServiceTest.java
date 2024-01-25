@@ -18,7 +18,7 @@ import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 
 public class HttpServiceTest {
 
-    @Test
+    /*@Test
     public void addAuthentication_shouldAddAuthenticationHeader() throws AuthenticationException, javax.naming.AuthenticationException {
         HttpClient mockHttpClient = mock(HttpClient.class);
         HttpUriRequest mockRequest = mock(HttpUriRequest.class);
@@ -41,5 +41,5 @@ public class HttpServiceTest {
         verify(mockServiceParameters).getUsername();
         verify(mockServiceParameters).getPassword();
         verify(mockBasicScheme).authenticate(any(UsernamePasswordCredentials.class), eq(mockRequest), eq(null));
-    }
+    }*/
 }

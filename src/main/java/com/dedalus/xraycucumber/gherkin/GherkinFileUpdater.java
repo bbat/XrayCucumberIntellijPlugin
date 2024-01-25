@@ -64,7 +64,7 @@ public class GherkinFileUpdater {
             newContent.append(line).append("\n");
         }
 
-        if (newContent.length() > 0) {
+        if (!newContent.isEmpty()) {
             newContent.setLength(newContent.length() - 1);
         }
 

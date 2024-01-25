@@ -6,6 +6,7 @@ import javax.swing.*;
 import com.dedalus.xraycucumber.serviceparameters.CredentialManager;
 import com.dedalus.xraycucumber.serviceparameters.JiraServiceParameters;
 import com.dedalus.xraycucumber.serviceparameters.PasswordSafeWrapper;
+import com.intellij.credentialStore.Credentials;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBPasswordField;
@@ -13,7 +14,6 @@ import com.intellij.ui.components.JBTextField;
 
 public class JiraCredentialsDialog extends DialogWrapper {
 
-    private final JiraServiceParameters serviceParameters;
     private JBTextField usernameField;
     private JBPasswordField passwordField;
     private JCheckBox storeCredentialsCheckBox;
@@ -21,12 +21,8 @@ public class JiraCredentialsDialog extends DialogWrapper {
 
     public JiraCredentialsDialog(@Nullable Project project, JiraServiceParameters serviceParameters) {
         super(project);
-        this.serviceParameters = serviceParameters;
         init();
         setTitle("Credential for " + serviceParameters.getUrl().toExternalForm());
-        usernameField.setText(serviceParameters.getUsername());
-        passwordField.setText(serviceParameters.getPassword());
-
         CredentialManager credentialManager = new CredentialManager(new PasswordSafeWrapper());
         storeCredentialsCheckBox.setSelected(credentialManager.storeByDefault());
     }
@@ -37,15 +33,11 @@ public class JiraCredentialsDialog extends DialogWrapper {
         return rootPanel;
     }
 
-    public JiraServiceParameters getUpdatedServiceParameters() {
-        return new JiraServiceParameters.Builder()
-                .url(serviceParameters.getUrl())
-                .username(usernameField.getText())
-                .password(String.copyValueOf(passwordField.getPassword()))
-                .projectKey(serviceParameters.getProjectKey())
-                .bearerToken(serviceParameters.getBearerToken())
-                .tokenAuthenticationEnabled(serviceParameters.isTokenAuthenticationEnabled())
-                .build();
+    public Credentials getCredentialsFromUser() {
+        return new Credentials(
+                usernameField.getText(),
+                String.valueOf(passwordField.getPassword())
+        );
     }
 
     public boolean storeCredentials() {

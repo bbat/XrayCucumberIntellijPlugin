@@ -38,9 +38,12 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 
 public class SyncXrayCucumberAction extends AnAction {
+
     JsonArray jiraUploadResponse;
     Map<String, List<String>> cucumberFeatureIssueMap;
     Map<String, String> jiraXrayIssueMap;
+    JiraServiceParameters jiraServiceParameters;
+    Project project;
 
     @Override
     public @NotNull ActionUpdateThread getActionUpdateThread() {
@@ -57,7 +60,7 @@ public class SyncXrayCucumberAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull final AnActionEvent event) {
         FileDocumentManager.getInstance().saveAllDocuments();
-        Project project = event.getProject();
+        project = event.getProject();
 
         NotificationUtils notificationUtils = new NotificationUtils(project);
         GherkinFileParser gherkinFileParser = new GherkinFileParser();
@@ -67,34 +70,37 @@ public class SyncXrayCucumberAction extends AnAction {
 
         try {
             ProgressManager.getInstance().run(new Task.Backgroundable(project, "Upload feature to Xray") {
-                JiraServiceParameters jiraServiceParameters;
+
                 boolean success = false;
 
                 public void run(@NotNull ProgressIndicator progressIndicator) {
                     Objects.requireNonNull(featureFile, "The feature file cannot be null");
                     try {
-                        if(synchroStartUserNotification(project)) {
-                            jiraServiceParameters = getServiceParameters(event);
-                            setJiraUploadResponse(new JiraService(jiraServiceParameters).uploadFeatureToXray(featureFile));
+                        if (synchroStartUserNotification()) {
+                            ServiceParametersUtils serviceParametersUtils = new ServiceParametersUtils(project);
+                            jiraServiceParameters = serviceParametersUtils.getServiceParameters();
+                            JiraService jiraService = serviceParametersUtils.getJiraService(jiraServiceParameters);
+
+                            setJiraUploadResponse(jiraService.uploadFeatureToXray(featureFile));
                             setJiraXrayIssueMap(jiraXrayIssueMapper.map(getJiraUploadResponse()));
                             setCucumberFeatureIssueMap(gherkinFileParser.getScenariosAndTags(featureFile.getPath()));
-                            success=true;
+                            success = true;
                         } else {
-                            success=false;
+                            success = false;
                         }
                     } catch (URISyntaxException | IOException | AuthenticationException | org.apache.http.auth.AuthenticationException e) {
-                        success=false;
+                        success = false;
                         notificationUtils.notifyError(String.valueOf(e));
                     }
                 }
 
                 @Override
                 public void onSuccess() {
-                    if(success) {
+                    if (success) {
                         Objects.requireNonNull(featureFile, "The feature file cannot be null");
 
                         try {
-                            if(jiraServiceParameters.isSaveFeatureBeforeUpdate()) {
+                            if (jiraServiceParameters.isSaveFeatureBeforeUpdate()) {
                                 gherkinFileUpdater.saveBeforeUpdate(featureFile);
                             }
 
@@ -103,7 +109,7 @@ public class SyncXrayCucumberAction extends AnAction {
                                 Document documentUpdated = gherkinFileUpdater.addXrayIssueIdTagsOnScenario(document, getJiraXrayIssueMap(), getCucumberFeatureIssueMap());
 
                                 FileDocumentManager.getInstance().saveDocument(documentUpdated);
-                                reformatCode(event, project, documentUpdated);
+                                reformatCode(event, documentUpdated);
                             });
 
                             notificationUtils.notifySuccess("This feature file is now synchronized with Xray");
@@ -120,16 +126,17 @@ public class SyncXrayCucumberAction extends AnAction {
         }
     }
 
-    private static boolean synchroStartUserNotification(final Project project) {
+    private boolean synchroStartUserNotification() {
         final AtomicBoolean success = new AtomicBoolean(false);
-        NotificationUtils notificationUtils = new NotificationUtils(project);
+        NotificationUtils notificationUtils = new NotificationUtils(this.project);
         ApplicationManager.getApplication().invokeAndWait(() -> {
-            SynchroStartPopup popup = new SynchroStartPopup(project);
+            SynchroStartPopup popup = new SynchroStartPopup(this.project);
             popup.showAndGet();
             if (popup.isCanceled()) {
                 notificationUtils.notifyInfo("User cancellation");
                 success.set(false);
-            } else success.set(true);
+            } else
+                success.set(true);
         });
         return success.get();
     }
@@ -138,15 +145,16 @@ public class SyncXrayCucumberAction extends AnAction {
         return cucumberFeatureIssueMap;
     }
 
+    private void setCucumberFeatureIssueMap(final Map<String, List<String>> cucumberFeatureIssueMap) {
+        this.cucumberFeatureIssueMap = cucumberFeatureIssueMap;
+    }
+
     private JsonArray getJiraUploadResponse() {
         return jiraUploadResponse;
     }
 
     private void setJiraUploadResponse(final JsonArray jiraUploadResponse) {
         this.jiraUploadResponse = jiraUploadResponse;
-    }
-    private void setCucumberFeatureIssueMap(final Map<String, List<String>> cucumberFeatureIssueMap) {
-        this.cucumberFeatureIssueMap = cucumberFeatureIssueMap;
     }
 
     private Map<String, String> getJiraXrayIssueMap() {
@@ -157,16 +165,10 @@ public class SyncXrayCucumberAction extends AnAction {
         this.jiraXrayIssueMap = jiraXrayIssueMap;
     }
 
-    private static void reformatCode(final @NotNull AnActionEvent event, final Project project, final Document document) {
+    private void reformatCode(final @NotNull AnActionEvent event, final Document document) {
         PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
         assert psiFile != null;
-        new ReformatCodeProcessor(psiFile,false).run();
-        PsiDocumentManager.getInstance(project).commitDocument(document);
-    }
-
-    private JiraServiceParameters getServiceParameters(@NotNull final AnActionEvent event) throws IOException, UserCancelException {
-        final Project project = event.getProject();
-        ServiceParametersUtils serviceParametersUtils = new ServiceParametersUtils();
-        return serviceParametersUtils.getServiceParameters(project);
+        new ReformatCodeProcessor(psiFile, false).run();
+        PsiDocumentManager.getInstance(event.getProject()).commitDocument(document);
     }
 }
